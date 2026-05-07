@@ -1,2 +1,3 @@
 Hello.
-How are you?
+I'm tired.
+I'm hungry. Do you have chocolate?
