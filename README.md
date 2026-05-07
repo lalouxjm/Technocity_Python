@@ -1,3 +1,3 @@
 Hello.
-I'm tired.
-I'm hungry. DO you have chocolate?
+I'm tired.gegregre
+I'm hungry. Do you have chocolate?
