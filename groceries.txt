@@ -1,0 +1,6 @@
+milk
+eggs
+bread
+rice
+apples
+pasta
