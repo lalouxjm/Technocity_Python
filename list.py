@@ -1,7 +1,7 @@
 from copy import deepcopy
 import my_func
 
-"""
+
 #1
 a = [1,2,3]
 b = deepcopy(a)
@@ -34,7 +34,7 @@ def max_list(lst):
 
 print(list_sum(numbers))
 print(max_list(numbers))
-"""
+
 #4
 """
 toolbox = ["Screwdriver", "Hammer", "Adjustable Wrench", "Saw", "Duck Tape", "Nails"]
@@ -107,83 +107,87 @@ print(d2)
 for k, v1, v2 in zip(d.keys(), d.values(), d2.values()):
     print(k, v1, v2)
 """
-#7
-#Cinema Seat Reservation
+#tuple exercise
+students = [
+    (101, "Alex"),
+    (102, "Bob"),
+    (103, "Charlie")
+]
+def print_students():
+    print(my_func.blue("print student names"))
+    for student in students:
+        print(f"{student[0]} : {student[1]}")
 
-row = ["A","B","C","D"]
-seat = ["1","2","3","4","5","6","7","8"]
-reservations = {}
+print(my_func.blue("unpack and print names"))
+for student_id, name in students:
+    print(name)
 
-def init_reservation():
-    #print("init")
-    for i in range(4):
-        for j in range(8):
-            reservations[(row[i]+seat[j])] = ""
+print(my_func.blue("find student"))
+def find_student(search_id):
 
-def display_seats():
-    print("===SEATING DISPLAY===")
-    for i in range(4):
-        if i != 0:
-            print("\n")
-        for j in range(8):
-            print(row[i]+seat[j], sep="", end="")
-            if j != 7:
-                print(":[ ] - ", end="")
-            else:
-                print(":[ ]", end="")
+    for student_id, name in students:
 
-def display_reservations():
-    for i in range(4):
-        for j in range(8):
-            seat_id = row[i] + seat[j]
-            status = reservations[seat_id]
+        if student_id == search_id:
+            return name
 
-            if status == "":
-                print(f"{seat_id}: Empty", end=" | ")
-            else:
-                print(my_func.blue(f"{seat_id}: {status}"), end=" | ")
+    return my_func.red("Student not found!")
 
-        print()
+print("student id: 101 -> ",find_student(101))
+print("student id: 102 -> ",find_student(102))
+print("student id: 103 -> ",find_student(103))
+print("student id: 104 -> ",find_student(104))
 
-def make_reservation():
-    print(my_func.green("===Reservation==="))
-    client_name = input("Please enter your name: ")
-    for key in reservations:
-        if reservations[key] == '':
-            reservations[key] = client_name.capitalize()
-            break
+def add_student():
+    new_student = input("Name of new student: ")
+    new_id = max(student[0] for student in students)
+    new_input = new_id + 1, new_student
+    students.append(new_input)
+    print_students()
 
-def cancel_reservation():
-    print(my_func.green("===Cancellation==="))
-    cancellation_name = input("Please enter the name for the cancellation: ")
-    found = False
-    for key in reservations:
-        if reservations[key] == cancellation_name.capitalize():
-            reservations[key] = ''
-            found = True
-            break
-    if not found:
-        print(my_func.red("You don't have a reservation yet."))
+add_student()
 
-print(my_func.green("===MOVIE THEATER RESERVATION==="))
-init_reservation()
-while True:
-    #print(reservations)
+def get_all_ids():
+    list_of_ids = []
+    for student in students:
+        list_of_ids.append(student[0])
+    print("list of ids ->",list_of_ids)
 
-    try:
-        menu_choice = int(input("\nPress 1 to create a reservation \nPress 2 to cancel a reservation \nPress 3 to see the seating display \nPress 4 to exit : "))
-    except ValueError:
-        print(my_func.red("Please enter a valid number"))
-        continue
+get_all_ids()
 
+def tuple_to_dict(tuple_obj):
+    dict_of_obj = {}
 
-    if menu_choice == 1:
-        make_reservation()
-    if menu_choice == 2:
-        cancel_reservation()
-    if menu_choice == 3:
-        #display_seats()
-        display_reservations()
-    if menu_choice == 4:
-        print("Thank you for your time! Have a nice day!")
-        break
+    dict_of_obj[tuple_obj[0]] = tuple_obj[1]
+    return dict_of_obj
+
+a = (101, "Alex")
+b = (102, "Bob")
+c = (103, "Charlie")
+
+d = tuple_to_dict(a)
+e = tuple_to_dict(b)
+f = tuple_to_dict(c)
+
+print(d)
+
+#GET DICT
+students = [
+    {'id': 101, 'firstname': 'Alex', 'lastname' : 'Mercer'},
+    {'id': 102, 'firstname': 'Bob', 'lastname' : 'Henderson'},
+    {'id': 103, 'firstname': 'Charlie', 'lastname' : 'Johnson'}
+]
+for student in students:
+    print(student.get('firstname'), student.get('lastname'))
+
+list_of_students = [
+    (101, 'Alex', 'Mercer'),
+    (102, 'Bob', 'Henderson'),
+    (103, 'Charlie', 'Johnson')
+]
+dict_of_students = {
+     student[0]: {'id':  student[0], 'firstname': student[1], 'lastname': student[2]}
+     for student in list_of_students
+}
+
+for k, v in dict_of_students.items():
+    print(f"The student id number {k} is {v.get('firstname')}")
