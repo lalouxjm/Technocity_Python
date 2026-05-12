@@ -33,7 +33,16 @@ def two_pointers_warmup(s: str) -> bool:
         ""         -> True
     """
     # YOUR CODE HERE
-    pass
+    left, right = 0, len(s) - 1
+
+    while left < right:
+        if s[left] != s[right]:
+            return False
+
+        left += 1
+        right -= 1
+
+    return True
 
 
 def two_pointers_interview(nums: list[int], target: int) -> list[int]:
@@ -52,7 +61,20 @@ def two_pointers_interview(nums: list[int], target: int) -> list[int]:
         [-3, 0, 4, 8],  target=5   -> [1, 4]
     """
     # YOUR CODE HERE
-    pass
+    left, right = 0, len(nums) - 1
+
+    while left < right:
+        current_sum = nums[left] + nums[right]
+
+        if current_sum == target:
+            return [left + 1, right + 1]  # 1-indexed
+
+        elif current_sum < target:
+            left += 1
+
+        else:
+            right -= 1
+
 
 
 # =============================================================================

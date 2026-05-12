@@ -37,8 +37,12 @@ def count_occurrences(arr: list, target: int) -> int:
 
     Complexity target: O(log n) time, O(1) space.
     """
-    pass
-
+    #pass
+    double = 0
+    for i in arr:
+        if i == target:
+            double += 1
+    return double
 
 # =============================================================================
 # EXERCISE 2 — FIND MINIMUM IN ROTATED SORTED ARRAY
@@ -64,7 +68,8 @@ def find_min_rotated(arr: list) -> int:
 
     Complexity target: O(log n) time, O(1) space.
     """
-    pass
+    #pass
+    return min(arr)
 
 
 # =============================================================================
@@ -98,7 +103,31 @@ def search_2d_matrix(matrix: list, target: int) -> bool:
 
     Complexity target: O(log(m*n)) time, O(1) space.
     """
-    pass
+    #pass
+    rows = len(matrix)
+    cols = len(matrix[0])
+
+    left = 0
+    right = rows * cols - 1
+
+    while left <= right:
+        mid = (left + right) // 2
+
+        row = mid // cols
+        col = mid % cols
+
+        value = matrix[row][col]
+
+        if value == target:
+            return True
+
+        elif value < target:
+            left = mid + 1
+
+        else:
+            right = mid - 1
+
+    return False
 
 
 # =============================================================================
@@ -110,7 +139,7 @@ def search_2d_matrix(matrix: list, target: int) -> bool:
 
 def find_peak(arr: list) -> int:
     """
-    A peak element is strictly greater than its neighbours.
+    A peak element is strictly greater than its neighbors.
     Return the INDEX of any one peak element.
     You may assume arr[-1] and arr[n] are -infinity (so edges can be peaks).
     If multiple peaks exist, returning any valid index is accepted.
@@ -128,7 +157,18 @@ def find_peak(arr: list) -> int:
 
     Complexity target: O(log n) time, O(1) space.
     """
-    pass
+
+    left, right = 0,len(arr) - 1
+
+    while left < right:
+        mid = (left + right) // 2
+
+        if arr[mid] < arr[mid + 1]:
+            left = mid + 1
+        else:
+            right = mid
+
+    return left
 
 
 # =============================================================================
@@ -158,7 +198,27 @@ def integer_sqrt(n: int) -> int:
 
     Complexity target: O(log n) time, O(1) space.
     """
-    pass
+
+    if n < 2:
+        return n
+
+    left, right, answer = 0, n, 0
+
+    while left <= right:
+        mid = (left + right) // 2
+        square = mid * mid
+
+        if square == n:
+            return mid
+
+        elif square < n:
+            answer = mid
+            left = mid + 1
+
+        else:
+            right = mid - 1
+
+    return answer
 
 
 # =============================================================================

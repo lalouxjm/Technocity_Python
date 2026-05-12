@@ -57,7 +57,7 @@ def linear_search_v3(arr, target):
 # Idea    : compare the target with the middle element.
 #           If smaller → search left half. If larger → search right half.
 #           Each step halves the search space → O(log n).
-# Use when: sorted data, repeated searches (amortise the sort cost).
+# Use when: sorted data, repeated searches (amortize the sort cost).
 # Time    : O(log n)
 # Space   : O(log n) recursive (call stack) | O(1) iterative
 #
@@ -106,11 +106,11 @@ def binary_search_v2_recursive(arr, target, lo=0, hi=None):
 
 
 def binary_search_v3_iterative(arr, target):
-    """
-    Version 3 — iterative. PREFERRED in interviews.
+
+    """Version 3 — iterative. PREFERRED in interviews.
     Time: O(log n) | Space: O(1) — no call stack overhead.
-    Same logic as recursive but uses a while loop instead.
-    """
+    Same logic as recursive but uses a while loop instead."""
+
     lo, hi = 0, len(arr) - 1
 
     while lo <= hi:
