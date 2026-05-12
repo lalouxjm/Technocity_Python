@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Data Structures — Interview Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f11;
+    --bg2: #17171b;
+    --bg3: #1e1e24;
+    --border: #2a2a33;
+    --text: #e8e6f0;
+    --muted: #7a7890;
+    --accent: #a78bfa;
+    --accent2: #34d399;
+    --accent3: #f59e0b;
+    --accent4: #60a5fa;
+    --accent5: #f472b6;
+    --list-c: #60a5fa;
+    --dict-c: #a78bfa;
+    --set-c: #34d399;
+    --tuple-c: #f59e0b;
+    --perf-c: #f472b6;
+  }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  header {
+    padding: 3rem 3rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 0.4rem;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .star-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 500;
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--accent3);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+
+  .tabs-wrapper {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    padding: 0 3rem;
+    overflow-x: auto;
+    gap: 0;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 1rem 1.4rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .tab-btn .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+
+  .tab-btn.active { color: #fff; }
+  .tab-btn[data-tab="lookup"].active    { border-color: var(--dict-c); color: var(--dict-c); }
+  .tab-btn[data-tab="counting"].active  { border-color: var(--accent); color: var(--accent); }
+  .tab-btn[data-tab="uniqueness"].active{ border-color: var(--set-c); color: var(--set-c); }
+  .tab-btn[data-tab="sequence"].active  { border-color: var(--list-c); color: var(--list-c); }
+  .tab-btn[data-tab="perf"].active      { border-color: var(--perf-c); color: var(--perf-c); }
+
+  .dot-lookup   { background: var(--dict-c); }
+  .dot-counting { background: var(--accent); }
+  .dot-uniqueness{ background: var(--set-c); }
+  .dot-sequence { background: var(--list-c); }
+  .dot-perf     { background: var(--perf-c); }
+
+  .content {
+    padding: 2.5rem 3rem;
+    max-width: 1100px;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .panel-header {
+    margin-bottom: 2rem;
+  }
+
+  .panel-header h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.3rem;
+  }
+
+  .panel-header p {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-question {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .card-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 3px 12px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  .b-list  { background: rgba(96,165,250,0.15); color: var(--list-c); border: 1px solid rgba(96,165,250,0.3); }
+  .b-dict  { background: rgba(167,139,250,0.15); color: var(--dict-c); border: 1px solid rgba(167,139,250,0.3); }
+  .b-set   { background: rgba(52,211,153,0.15); color: var(--set-c); border: 1px solid rgba(52,211,153,0.3); }
+  .b-tuple { background: rgba(245,158,11,0.15); color: var(--tuple-c); border: 1px solid rgba(245,158,11,0.3); }
+  .b-deque { background: rgba(244,114,182,0.15); color: var(--perf-c); border: 1px solid rgba(244,114,182,0.3); }
+
+  .complexity {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .stars { color: var(--accent3); font-size: 0.75rem; }
+
+  .card-body {
+    padding: 1.2rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+  }
+
+  @media (max-width: 700px) {
+    .card-body { grid-template-columns: 1fr; }
+    .content { padding: 1.5rem; }
+    header { padding: 2rem 1.5rem 1.5rem; }
+    .tabs-wrapper { padding: 0 1rem; }
+  }
+
+  .answer-block h4 {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .answer-text {
+    font-size: 0.88rem;
+    color: #c4c0d8;
+    line-height: 1.65;
+  }
+
+  pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: #d4d0e8;
+  }
+
+  .kw  { color: #c084fc; }
+  .fn  { color: #60a5fa; }
+  .str { color: #86efac; }
+  .num { color: #fbbf24; }
+  .cm  { color: #4b5563; font-style: italic; }
+  .op  { color: #94a3b8; }
+  .hi  { color: #f9a8d4; }
+
+  .tip {
+    margin-top: 1.5rem;
+    padding: 0.9rem 1.2rem;
+    background: rgba(167,139,250,0.07);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.85rem;
+    color: #c4c0d8;
+    line-height: 1.6;
+  }
+
+  .tip strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Python Data Structures <span class="star-badge">Interview Guide</span></h1>
+  <p>When to use what — with concrete examples for each question</p>
+</header>
+
+<div class="tabs-wrapper">
+  <button class="tab-btn active" data-tab="lookup">
+    <span class="dot dot-lookup"></span> Storage &amp; Lookup
+  </button>
+  <button class="tab-btn" data-tab="counting">
+    <span class="dot dot-counting"></span> Counting &amp; Grouping
+  </button>
+  <button class="tab-btn" data-tab="uniqueness">
+    <span class="dot dot-uniqueness"></span> Uniqueness &amp; Sets
+  </button>
+  <button class="tab-btn" data-tab="sequence">
+    <span class="dot dot-sequence"></span> Order &amp; Sequence
+  </button>
+  <button class="tab-btn" data-tab="perf">
+    <span class="dot dot-perf"></span> Performance Traps
+  </button>
+</div>
+
+<div class="content">
+
+  <!-- TAB 1: Storage & Lookup -->
+  <div class="tab-panel active" id="panel-lookup">
+    <div class="panel-header">
+      <h2>Storage &amp; Lookup</h2>
+      <p>Choosing how to store data based on how you'll retrieve it.</p>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need fast lookup by a meaningful key?</div>
+          <div class="card-meta">
+            <span class="badge b-dict">dict</span>
+            <span class="complexity">O(1) avg</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why dict?</h4>
+            <p class="answer-text">A dict stores key→value pairs with a hash table under the hood. Any lookup by key costs O(1) on average — no matter how many entries. Use it whenever you access data by a meaningful label rather than a position.</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="cm"># Map student names to grades</span>
+grades <span class="op">=</span> {
+  <span class="str">"Alice"</span>: <span class="num">92</span>,
+  <span class="str">"Bob"</span>: <span class="num">85</span>,
+  <span class="str">"Clara"</span>: <span class="num">78</span>,
+}
+
+<span class="cm"># O(1) lookup — instant, no loop</span>
+<span class="fn">print</span>(grades[<span class="str">"Alice"</span>])  <span class="cm"># 92</span>
+
+<span class="cm"># Safe access with default</span>
+grades.<span class="fn">get</span>(<span class="str">"Dan"</span>, <span class="num">0</span>)   <span class="cm"># 0 (not KeyError)</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need to check if a value exists fast?</div>
+          <div class="card-meta">
+            <span class="badge b-set">set</span>
+            <span class="complexity">O(1) avg</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why set?</h4>
+            <p class="answer-text">Sets use hashing just like dicts — checking membership with <code style="font-family:monospace;font-size:0.85em">in</code> is O(1). If you only need to know "is X in my collection?" and don't need a value or position, a set is the right tool.</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="cm"># Banned usernames — checked on every login</span>
+banned <span class="op">=</span> {<span class="str">"admin"</span>, <span class="str">"root"</span>, <span class="str">"superuser"</span>}
+
+username <span class="op">=</span> <span class="str">"root"</span>
+
+<span class="kw">if</span> username <span class="kw">in</span> banned:   <span class="cm"># O(1) !</span>
+  <span class="fn">print</span>(<span class="str">"Access denied"</span>)
+<span class="kw">else</span>:
+  <span class="fn">print</span>(<span class="str">"Welcome"</span>)</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need ordered access by position (index)?</div>
+          <div class="card-meta">
+            <span class="badge b-list">list</span>
+            <span class="complexity">O(1) by index</span>
+            <span class="stars">★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why list?</h4>
+            <p class="answer-text">Lists are sequences — elements have a position and you access them by index in O(1). Great when order matters and you'll iterate, slice, or access by number. But searching by value is O(n).</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="cm"># Steps of a process — order matters</span>
+steps <span class="op">=</span> [<span class="str">"parse"</span>, <span class="str">"validate"</span>, <span class="str">"save"</span>, <span class="str">"notify"</span>]
+
+<span class="cm"># Access by index — O(1)</span>
+<span class="fn">print</span>(steps[<span class="num">0</span>])    <span class="cm"># "parse"</span>
+<span class="fn">print</span>(steps[<span class="op">-</span><span class="num">1</span>])   <span class="cm"># "notify"</span>
+
+<span class="cm"># Slice — get first two steps</span>
+<span class="fn">print</span>(steps[:<span class="num">2</span>])   <span class="cm"># ["parse", "validate"]</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need fixed, immutable data (e.g. coordinates, config)?</div>
+          <div class="card-meta">
+            <span class="badge b-tuple">tuple</span>
+            <span class="complexity">O(1) by index</span>
+            <span class="stars">★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why tuple?</h4>
+            <p class="answer-text">Tuples are like lists that can never change. Use them to signal "this data belongs together and must not be altered." They're also hashable, which makes them usable as dict keys — lists cannot be.</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="cm"># GPS coordinates — should never change</span>
+paris <span class="op">=</span> (<span class="num">48.8566</span>, <span class="num">2.3522</span>)
+london <span class="op">=</span> (<span class="num">51.5074</span>, <span class="op">-</span><span class="num">0.1278</span>)
+
+<span class="cm"># Unpack naturally</span>
+lat, lon <span class="op">=</span> paris
+<span class="fn">print</span>(lat)  <span class="cm"># 48.8566</span>
+
+<span class="cm"># Use as dict key (lists can't!)</span>
+city_map <span class="op">=</span> {paris: <span class="str">"Paris"</span>, london: <span class="str">"London"</span>}</pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 2: Counting & Grouping -->
+  <div class="tab-panel" id="panel-counting">
+    <div class="panel-header">
+      <h2>Counting &amp; Grouping</h2>
+      <p>Using dicts to aggregate, tally, and classify data.</p>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need to count occurrences of elements?</div>
+          <div class="card-meta">
+            <span class="badge b-dict">dict / Counter</span>
+            <span class="complexity">O(n) build, O(1) lookup</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why dict or Counter?</h4>
+            <p class="answer-text">Build a frequency map in one pass with a dict. <code style="font-family:monospace;font-size:0.85em">collections.Counter</code> does the same automatically and adds useful methods like <code style="font-family:monospace;font-size:0.85em">most_common()</code>. This pattern is in almost every coding test.</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="kw">from</span> collections <span class="kw">import</span> Counter
+
+words <span class="op">=</span> [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"apple"</span>, <span class="str">"cherry"</span>, <span class="str">"banana"</span>, <span class="str">"apple"</span>]
+
+<span class="cm"># Manual dict approach</span>
+counts <span class="op">=</span> {}
+<span class="kw">for</span> w <span class="kw">in</span> words:
+  counts[w] <span class="op">=</span> counts.<span class="fn">get</span>(w, <span class="num">0</span>) <span class="op">+</span> <span class="num">1</span>
+<span class="cm"># {"apple": 3, "banana": 2, "cherry": 1}</span>
+
+<span class="cm"># Counter shortcut</span>
+c <span class="op">=</span> <span class="fn">Counter</span>(words)
+c.<span class="fn">most_common</span>(<span class="num">2</span>)  <span class="cm"># [("apple",3), ("banana",2)]</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need to group items by category?</div>
+          <div class="card-meta">
+            <span class="badge b-dict">dict of lists</span>
+            <span class="complexity">O(n)</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why dict of lists?</h4>
+            <p class="answer-text">Map each category key to a list of matching items. Classic interview problem: "group anagrams together" — the key is the sorted word, the value is the list of anagrams. <code style="font-family:monospace;font-size:0.85em">defaultdict(list)</code> removes the need to check if the key exists first.</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="kw">from</span> collections <span class="kw">import</span> defaultdict
+
+words <span class="op">=</span> [<span class="str">"eat"</span>, <span class="str">"tea"</span>, <span class="str">"tan"</span>, <span class="str">"ate"</span>, <span class="str">"nat"</span>, <span class="str">"bat"</span>]
+
+groups <span class="op">=</span> <span class="fn">defaultdict</span>(list)
+
+<span class="kw">for</span> w <span class="kw">in</span> words:
+  key <span class="op">=</span> <span class="fn">tuple</span>(<span class="fn">sorted</span>(w))  <span class="cm"># ("a","e","t")</span>
+  groups[key].<span class="fn">append</span>(w)
+
+<span class="cm"># {('a','e','t'): ['eat','tea','ate'],</span>
+<span class="cm">#  ('a','n','t'): ['tan','nat'],</span>
+<span class="cm">#  ('a','b','t'): ['bat']}</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need to track the first/last seen item?</div>
+          <div class="card-meta">
+            <span class="badge b-dict">dict</span>
+            <span class="complexity">O(1) per item</span>
+            <span class="stars">★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why dict?</h4>
+            <p class="answer-text">Store each element's index as you iterate. When you see it again, the stored index is where it was first (or last) seen. This powers classic problems like "first non-repeating character" or "two sum".</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="cm"># First non-repeating character</span>
+s <span class="op">=</span> <span class="str">"leetcode"</span>
+
+seen <span class="op">=</span> {}
+<span class="kw">for</span> i, ch <span class="kw">in</span> <span class="fn">enumerate</span>(s):
+  <span class="kw">if</span> ch <span class="kw">not in</span> seen:
+    seen[ch] <span class="op">=</span> i        <span class="cm"># first index</span>
+  <span class="kw">else</span>:
+    seen[ch] <span class="op">=</span> <span class="op">-</span><span class="num">1</span>       <span class="cm"># mark as duplicate</span>
+
+result <span class="op">=</span> <span class="fn">min</span>(
+  (i <span class="kw">for</span> i <span class="kw">in</span> seen.values() <span class="kw">if</span> i <span class="op">!=</span> <span class="op">-</span><span class="num">1</span>)
+)
+<span class="fn">print</span>(s[result])  <span class="cm"># "l"</span></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 3: Uniqueness & Sets -->
+  <div class="tab-panel" id="panel-uniqueness">
+    <div class="panel-header">
+      <h2>Uniqueness &amp; Sets</h2>
+      <p>Leveraging set operations for deduplication and intersection problems.</p>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need to remove duplicates?</div>
+          <div class="card-meta">
+            <span class="badge b-set">set</span>
+            <span class="complexity">O(n)</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why set?</h4>
+            <p class="answer-text">Converting to a set drops all duplicates in one operation. Convert back to a list if you need indexing. Warning: order is not guaranteed — if order matters, use <code style="font-family:monospace;font-size:0.85em">dict.fromkeys()</code> instead (preserves insertion order).</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre>nums <span class="op">=</span> [<span class="num">3</span>, <span class="num">1</span>, <span class="num">4</span>, <span class="num">1</span>, <span class="num">5</span>, <span class="num">9</span>, <span class="num">2</span>, <span class="num">6</span>, <span class="num">5</span>, <span class="num">3</span>]
+
+<span class="cm"># Fast — order not preserved</span>
+unique <span class="op">=</span> <span class="fn">list</span>(<span class="fn">set</span>(nums))
+
+<span class="cm"># Preserves insertion order (Python 3.7+)</span>
+unique_ordered <span class="op">=</span> <span class="fn">list</span>(<span class="fn">dict</span>.<span class="fn">fromkeys</span>(nums))
+<span class="cm"># [3, 1, 4, 5, 9, 2, 6]</span>
+
+<span class="cm"># Count unique elements</span>
+<span class="fn">print</span>(<span class="fn">len</span>(<span class="fn">set</span>(nums)))  <span class="cm"># 7</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need intersection, union, or difference of two groups?</div>
+          <div class="card-meta">
+            <span class="badge b-set">set</span>
+            <span class="complexity">O(min(a,b))</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why set?</h4>
+            <p class="answer-text">Sets have built-in operators for all set algebra. These are extremely readable and efficient. Master the 4 operators: <code style="font-family:monospace;font-size:0.85em">|</code> union, <code style="font-family:monospace;font-size:0.85em">&</code> intersection, <code style="font-family:monospace;font-size:0.85em">-</code> difference, <code style="font-family:monospace;font-size:0.85em">^</code> symmetric difference.</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre>python_devs <span class="op">=</span> {<span class="str">"Alice"</span>, <span class="str">"Bob"</span>, <span class="str">"Clara"</span>}
+js_devs     <span class="op">=</span> {<span class="str">"Bob"</span>, <span class="str">"Dan"</span>, <span class="str">"Clara"</span>}
+
+<span class="cm"># Both Python AND JS</span>
+python_devs <span class="op">&amp;</span> js_devs    <span class="cm"># {"Bob", "Clara"}</span>
+
+<span class="cm"># Python OR JS (or both)</span>
+python_devs <span class="op">|</span> js_devs    <span class="cm"># {"Alice","Bob","Clara","Dan"}</span>
+
+<span class="cm"># Python only (not JS)</span>
+python_devs <span class="op">-</span> js_devs    <span class="cm"># {"Alice"}</span>
+
+<span class="cm"># One but not the other</span>
+python_devs <span class="op">^</span> js_devs    <span class="cm"># {"Alice", "Dan"}</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need to find common elements between two lists?</div>
+          <div class="card-meta">
+            <span class="badge b-set">set a &amp; b</span>
+            <span class="complexity">O(min(a,b))</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why set intersection?</h4>
+            <p class="answer-text">A nested loop to find common elements is O(n²). Converting both lists to sets and using <code style="font-family:monospace;font-size:0.85em">&</code> is O(n). This is a very common interview optimization — the examiner is often waiting for you to spot it.</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre>list1 <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+list2 <span class="op">=</span> [<span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>, <span class="num">7</span>]
+
+<span class="cm"># Naive: O(n²) — DON'T do this</span>
+common <span class="op">=</span> [x <span class="kw">for</span> x <span class="kw">in</span> list1 <span class="kw">if</span> x <span class="kw">in</span> list2]
+
+<span class="cm"># Optimal: O(n) — DO this</span>
+common <span class="op">=</span> <span class="fn">list</span>(<span class="fn">set</span>(list1) <span class="op">&amp;</span> <span class="fn">set</span>(list2))
+<span class="cm"># [3, 4, 5]</span>
+
+<span class="cm"># Why? "in list2" is O(n) per element!</span>
+<span class="cm"># "in set2" would be O(1) per element.</span></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 4: Order & Sequence -->
+  <div class="tab-panel" id="panel-sequence">
+    <div class="panel-header">
+      <h2>Order &amp; Sequence</h2>
+      <p>When the position or sequence of elements is what matters.</p>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need to maintain insertion order and allow changes?</div>
+          <div class="card-meta">
+            <span class="badge b-list">list</span>
+            <span class="complexity">O(1) append, O(n) insert</span>
+            <span class="stars">★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why list?</h4>
+            <p class="answer-text">Lists preserve insertion order and can grow or shrink freely. Appending to the end is O(1). Inserting or removing from the middle shifts elements and costs O(n) — keep that in mind for large collections.</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="cm"># Build a result list progressively</span>
+results <span class="op">=</span> []
+
+<span class="kw">for</span> n <span class="kw">in</span> [<span class="num">4</span>, <span class="num">2</span>, <span class="num">7</span>, <span class="num">1</span>, <span class="num">9</span>]:
+  <span class="kw">if</span> n <span class="op">%</span> <span class="num">2</span> <span class="op">==</span> <span class="num">0</span>:
+    results.<span class="fn">append</span>(n)    <span class="cm"># O(1)</span>
+
+<span class="fn">print</span>(results)  <span class="cm"># [4, 2]</span>
+
+<span class="cm"># Equivalent with list comprehension</span>
+results <span class="op">=</span> [n <span class="kw">for</span> n <span class="kw">in</span> [<span class="num">4</span>, <span class="num">2</span>, <span class="num">7</span>, <span class="num">1</span>, <span class="num">9</span>] <span class="kw">if</span> n <span class="op">%</span> <span class="num">2</span> <span class="op">==</span> <span class="num">0</span>]</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need to use data as a dictionary key?</div>
+          <div class="card-meta">
+            <span class="badge b-tuple">tuple</span>
+            <span class="complexity">O(1) hash</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why tuple?</h4>
+            <p class="answer-text">Dict keys must be hashable. Lists are mutable and cannot be hashed — using one as a key raises a <code style="font-family:monospace;font-size:0.85em">TypeError</code>. Tuples are immutable and hashable, making them ideal as composite keys (e.g. grid coordinates, multi-field lookups).</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="cm"># 2D grid with values at each cell</span>
+grid <span class="op">=</span> {}
+grid[(<span class="num">0</span>, <span class="num">0</span>)] <span class="op">=</span> <span class="str">"start"</span>
+grid[(<span class="num">3</span>, <span class="num">4</span>)] <span class="op">=</span> <span class="str">"treasure"</span>
+grid[(<span class="num">5</span>, <span class="num">5</span>)] <span class="op">=</span> <span class="str">"end"</span>
+
+<span class="fn">print</span>(grid[(<span class="num">3</span>, <span class="num">4</span>)])  <span class="cm"># "treasure"</span>
+
+<span class="cm"># This would crash — lists aren't hashable</span>
+<span class="cm"># grid[[3, 4]] = "treasure"  ← TypeError!</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need a stack (LIFO — last in, first out)?</div>
+          <div class="card-meta">
+            <span class="badge b-list">list</span>
+            <span class="complexity">O(1)</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why list?</h4>
+            <p class="answer-text">A list doubles as a stack: <code style="font-family:monospace;font-size:0.85em">.append()</code> pushes, <code style="font-family:monospace;font-size:0.85em">.pop()</code> pops — both O(1). Classic use cases: balanced parentheses, undo history, DFS traversal. This is one of the most tested patterns in interviews.</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="cm"># Check balanced parentheses</span>
+<span class="kw">def</span> <span class="fn">is_balanced</span>(s):
+  stack <span class="op">=</span> []
+  pairs <span class="op">=</span> {<span class="str">")"</span>: <span class="str">"("</span>, <span class="str">"]"</span>: <span class="str">"["</span>, <span class="str">"}"</span>: <span class="str">"{"</span>}
+  <span class="kw">for</span> ch <span class="kw">in</span> s:
+    <span class="kw">if</span> ch <span class="kw">in</span> <span class="str">"([{"</span>:
+      stack.<span class="fn">append</span>(ch)         <span class="cm"># push</span>
+    <span class="kw">elif</span> <span class="kw">not</span> stack <span class="kw">or</span> stack.<span class="fn">pop</span>() <span class="op">!=</span> pairs[ch]:
+      <span class="kw">return</span> <span class="hi">False</span>             <span class="cm"># pop</span>
+  <span class="kw">return not</span> stack
+
+<span class="fn">is_balanced</span>(<span class="str">"([{}])"</span>)   <span class="cm"># True</span>
+<span class="fn">is_balanced</span>(<span class="str">"([)]"</span>)     <span class="cm"># False</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need a queue (FIFO — first in, first out)?</div>
+          <div class="card-meta">
+            <span class="badge b-deque">deque</span>
+            <span class="complexity">O(1) both ends</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>Why deque, not list?</h4>
+            <p class="answer-text"><code style="font-family:monospace;font-size:0.85em">list.pop(0)</code> is O(n) — every element shifts left. A <code style="font-family:monospace;font-size:0.85em">deque</code> (double-ended queue) gives O(1) on both sides. Use it for BFS, sliding window, or any FIFO task.</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="cm"># BFS traversal of a graph</span>
+<span class="kw">def</span> <span class="fn">bfs</span>(graph, start):
+  visited <span class="op">=</span> <span class="fn">set</span>()
+  queue <span class="op">=</span> <span class="fn">deque</span>([start])
+  <span class="kw">while</span> queue:
+    node <span class="op">=</span> queue.<span class="fn">popleft</span>()   <span class="cm"># O(1) !</span>
+    <span class="kw">if</span> node <span class="kw">not in</span> visited:
+      visited.<span class="fn">add</span>(node)
+      queue.<span class="fn">extend</span>(graph[node])
+  <span class="kw">return</span> visited
+
+<span class="cm"># list.pop(0) would be O(n) — never for queues</span></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 5: Performance Traps -->
+  <div class="tab-panel" id="panel-perf">
+    <div class="panel-header">
+      <h2>Performance Traps</h2>
+      <p>Common mistakes interviewers look for — and how to fix them.</p>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Is <code style="font-family:monospace">x in list</code> okay for large data?</div>
+          <div class="card-meta">
+            <span class="badge b-set">use set instead</span>
+            <span class="complexity">list O(n) → set O(1)</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>The trap</h4>
+            <p class="answer-text">The <code style="font-family:monospace;font-size:0.85em">in</code> operator on a list scans every element until it finds a match — O(n). Inside a loop, this becomes O(n²). Converting to a set before the loop brings lookup down to O(1).</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="cm"># ❌ O(n²) — "in list" inside a loop</span>
+<span class="kw">def</span> <span class="fn">has_duplicate_slow</span>(nums):
+  seen <span class="op">=</span> []
+  <span class="kw">for</span> n <span class="kw">in</span> nums:
+    <span class="kw">if</span> n <span class="kw">in</span> seen:   <span class="cm"># O(n) each time!</span>
+      <span class="kw">return</span> <span class="hi">True</span>
+    seen.<span class="fn">append</span>(n)
+  <span class="kw">return</span> <span class="hi">False</span>
+
+<span class="cm"># ✅ O(n) — use a set</span>
+<span class="kw">def</span> <span class="fn">has_duplicate_fast</span>(nums):
+  seen <span class="op">=</span> <span class="fn">set</span>()
+  <span class="kw">for</span> n <span class="kw">in</span> nums:
+    <span class="kw">if</span> n <span class="kw">in</span> seen:   <span class="cm"># O(1) each time</span>
+      <span class="kw">return</span> <span class="hi">True</span>
+    seen.<span class="fn">add</span>(n)
+  <span class="kw">return</span> <span class="hi">False</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need a default value when a key is missing?</div>
+          <div class="card-meta">
+            <span class="badge b-dict">.get() / defaultdict</span>
+            <span class="complexity">O(1)</span>
+            <span class="stars">★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>The trap</h4>
+            <p class="answer-text">Accessing a missing key raises <code style="font-family:monospace;font-size:0.85em">KeyError</code>. Wrapping every access in a try/except is verbose. Use <code style="font-family:monospace;font-size:0.85em">.get(key, default)</code> for one-off access, or <code style="font-family:monospace;font-size:0.85em">defaultdict</code> when every missing key should auto-initialize to the same type.</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="kw">from</span> collections <span class="kw">import</span> defaultdict
+
+<span class="cm"># ❌ Verbose — checking key existence manually</span>
+counts <span class="op">=</span> {}
+<span class="kw">for</span> ch <span class="kw">in</span> <span class="str">"hello"</span>:
+  <span class="kw">if</span> ch <span class="kw">not in</span> counts:
+    counts[ch] <span class="op">=</span> <span class="num">0</span>
+  counts[ch] <span class="op">+=</span> <span class="num">1</span>
+
+<span class="cm"># ✅ Idiomatic — .get() with default</span>
+counts <span class="op">=</span> {}
+<span class="kw">for</span> ch <span class="kw">in</span> <span class="str">"hello"</span>:
+  counts[ch] <span class="op">=</span> counts.<span class="fn">get</span>(ch, <span class="num">0</span>) <span class="op">+</span> <span class="num">1</span>
+
+<span class="cm"># ✅ Cleaner — defaultdict(int)</span>
+counts <span class="op">=</span> <span class="fn">defaultdict</span>(int)
+<span class="kw">for</span> ch <span class="kw">in</span> <span class="str">"hello"</span>:
+  counts[ch] <span class="op">+=</span> <span class="num">1</span>  <span class="cm"># starts at 0 automatically</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-question">Do I need to insert/delete at the front of a sequence often?</div>
+          <div class="card-meta">
+            <span class="badge b-deque">deque not list</span>
+            <span class="complexity">list O(n) → deque O(1)</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="answer-block">
+            <h4>The trap</h4>
+            <p class="answer-text"><code style="font-family:monospace;font-size:0.85em">list.insert(0, x)</code> and <code style="font-family:monospace;font-size:0.85em">list.pop(0)</code> are both O(n) — every element must shift. A <code style="font-family:monospace;font-size:0.85em">deque</code> is designed for O(1) operations at both ends. In a sliding window or BFS context, this can be the difference between O(n) and O(n²).</p>
+          </div>
+          <div class="answer-block">
+            <h4>Example</h4>
+            <pre><span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="cm"># Sliding window maximum (last k elements)</span>
+<span class="kw">def</span> <span class="fn">sliding_max</span>(nums, k):
+  dq <span class="op">=</span> <span class="fn">deque</span>()   <span class="cm"># stores indices</span>
+  result <span class="op">=</span> []
+  <span class="kw">for</span> i, n <span class="kw">in</span> <span class="fn">enumerate</span>(nums):
+    <span class="kw">while</span> dq <span class="kw">and</span> nums[dq[<span class="op">-</span><span class="num">1</span>]] <span class="op">&lt;</span> n:
+      dq.<span class="fn">pop</span>()           <span class="cm"># O(1) from right</span>
+    dq.<span class="fn">append</span>(i)
+    <span class="kw">if</span> dq[<span class="num">0</span>] <span class="op">==</span> i <span class="op">-</span> k:
+      dq.<span class="fn">popleft</span>()       <span class="cm"># O(1) from left !</span>
+    <span class="kw">if</span> i <span class="op">&gt;=</span> k <span class="op">-</span> <span class="num">1</span>:
+      result.<span class="fn">append</span>(nums[dq[<span class="num">0</span>]])
+  <span class="kw">return</span> result</pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tip">
+      <strong>Interview tip:</strong> When you write a solution, always ask yourself out loud: "What's the complexity of my lookups?" Interviewers award extra points for catching O(n) lookups inside loops and replacing them with O(1) set or dict operations — even if your first solution was correct.
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

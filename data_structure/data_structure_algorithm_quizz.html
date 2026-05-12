@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Data Structures — Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f0f11;
+  --bg2: #17171b;
+  --bg3: #1e1e24;
+  --border: #2a2a33;
+  --text: #e8e6f0;
+  --muted: #6b6880;
+  --list-c: #60a5fa;
+  --dict-c: #a78bfa;
+  --set-c: #34d399;
+  --tuple-c: #f59e0b;
+  --deque-c: #f472b6;
+  --correct: #34d399;
+  --wrong: #f87171;
+}
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 2.5rem 3rem 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+header h1 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+  line-height: 1.1;
+}
+
+header p {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin-top: 0.35rem;
+}
+
+.score-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.score-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.score-display span {
+  color: #fff;
+  font-weight: 500;
+}
+
+#progress-ring {
+  transform: rotate(-90deg);
+}
+
+#progress-ring .track { fill: none; stroke: var(--border); stroke-width: 3; }
+#progress-ring .fill  { fill: none; stroke: var(--correct); stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 113;
+  stroke-dashoffset: 113;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+/* ── TABS ── */
+.tabs-wrapper {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 0 3rem;
+  overflow-x: auto;
+  gap: 0;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.85rem 1.3rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tab-btn .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.tab-btn .tab-check { font-size: 0.7rem; opacity: 0; transition: opacity 0.2s; }
+.tab-btn.done .tab-check { opacity: 1; }
+
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: #fff; }
+
+.tab-btn[data-tab="basics"].active     { border-color: var(--list-c); color: var(--list-c); }
+.tab-btn[data-tab="counting"].active   { border-color: var(--dict-c); color: var(--dict-c); }
+.tab-btn[data-tab="sets"].active       { border-color: var(--set-c);  color: var(--set-c);  }
+.tab-btn[data-tab="sequence"].active   { border-color: var(--tuple-c);color: var(--tuple-c);}
+.tab-btn[data-tab="perf"].active       { border-color: var(--deque-c);color: var(--deque-c);}
+
+.dot-basics   { background: var(--list-c); }
+.dot-counting { background: var(--dict-c); }
+.dot-sets     { background: var(--set-c);  }
+.dot-sequence { background: var(--tuple-c);}
+.dot-perf     { background: var(--deque-c);}
+
+/* ── CONTENT ── */
+.content { padding: 2rem 3rem 4rem; max-width: 860px; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.panel-intro {
+  margin-bottom: 1.8rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.panel-intro h2 { font-size: 1.1rem; font-weight: 700; color: #fff; }
+.panel-intro p  { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
+
+.panel-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.panel-score .ps-val { color: #fff; }
+
+/* ── QUIZ CARD ── */
+.quiz-cards { display: flex; flex-direction: column; gap: 1.2rem; }
+
+.qcard {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.qcard.answered-correct { border-color: rgba(52,211,153,0.35); }
+.qcard.answered-wrong   { border-color: rgba(248,113,113,0.35); }
+
+.qcard-header {
+  padding: 1.1rem 1.4rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  cursor: default;
+}
+
+.q-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  min-width: 2rem;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.q-text {
+  font-size: 0.93rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.55;
+  flex: 1;
+}
+
+.q-text code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82em;
+  background: var(--bg3);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #c4bfe8;
+}
+
+.q-status {
+  font-size: 1rem;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.qcard.answered-correct .q-status { opacity: 1; color: var(--correct); }
+.qcard.answered-wrong   .q-status { opacity: 1; color: var(--wrong);   }
+
+/* ── CHOICES ── */
+.choices {
+  padding: 0 1.4rem 1.2rem 3.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.choice-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+
+.choice-btn:hover:not(:disabled) {
+  background: #26262f;
+  border-color: #3d3d50;
+  transform: translateY(-1px);
+}
+
+.choice-btn:disabled { cursor: default; }
+
+.choice-btn.correct {
+  background: rgba(52,211,153,0.15);
+  border-color: rgba(52,211,153,0.5);
+  color: var(--correct);
+}
+
+.choice-btn.wrong {
+  background: rgba(248,113,113,0.12);
+  border-color: rgba(248,113,113,0.4);
+  color: var(--wrong);
+}
+
+.choice-btn.reveal {
+  background: rgba(52,211,153,0.08);
+  border-color: rgba(52,211,153,0.3);
+  color: rgba(52,211,153,0.7);
+}
+
+/* ── SOLUTION ── */
+.solution {
+  border-top: 1px solid var(--border);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.solution.open { max-height: 600px; }
+
+.solution-inner {
+  padding: 1.2rem 1.4rem 1.4rem 3.4rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  background: #13131a;
+}
+
+@media (max-width: 640px) {
+  .solution-inner { grid-template-columns: 1fr; }
+  .content { padding: 1.5rem; }
+  .tabs-wrapper { padding: 0 1rem; }
+  header { padding: 1.5rem; }
+  .choices { padding-left: 1.4rem; }
+}
+
+.sol-block h4 {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.6rem;
+}
+
+.sol-why {
+  font-size: 0.85rem;
+  color: #b8b4d0;
+  line-height: 1.65;
+}
+
+.sol-why code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82em;
+  background: var(--bg3);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: #c4bfe8;
+}
+
+pre {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  line-height: 1.75;
+  color: #d4d0e8;
+}
+
+.kw  { color: #c084fc; }
+.fn  { color: #60a5fa; }
+.str { color: #86efac; }
+.num { color: #fbbf24; }
+.cm  { color: #4a4866; font-style: italic; }
+.op  { color: #94a3b8; }
+.hi  { color: #f9a8d4; }
+.ok  { color: #34d399; }
+.bad { color: #f87171; }
+
+/* complexity pill */
+.complexity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 2px 10px;
+  color: var(--muted);
+  margin-bottom: 0.8rem;
+}
+
+.complexity-pill .dot2 { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+/* badge */
+.ans-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 99px;
+  margin-right: 0.4rem;
+}
+.b-list  { background: rgba(96,165,250,0.15);  color: var(--list-c);  border: 1px solid rgba(96,165,250,0.3); }
+.b-dict  { background: rgba(167,139,250,0.15); color: var(--dict-c);  border: 1px solid rgba(167,139,250,0.3); }
+.b-set   { background: rgba(52,211,153,0.15);  color: var(--set-c);   border: 1px solid rgba(52,211,153,0.3); }
+.b-tuple { background: rgba(245,158,11,0.15);  color: var(--tuple-c); border: 1px solid rgba(245,158,11,0.3); }
+.b-deque { background: rgba(244,114,182,0.15); color: var(--deque-c); border: 1px solid rgba(244,114,182,0.3); }
+
+/* final summary */
+#summary {
+  display: none;
+  margin: 2rem 3rem 3rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+}
+
+#summary h2 { font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; }
+#summary p  { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+.summary-grid {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.sum-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.8rem 1.4rem;
+  min-width: 100px;
+}
+
+.sum-card .val {
+  font-size: 1.8rem;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  display: block;
+}
+
+.sum-card .lbl {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sum-card.c-correct .val { color: var(--correct); }
+.sum-card.c-wrong   .val { color: var(--wrong); }
+.sum-card.c-total   .val { color: #fff; }
+
+#restart-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.6rem 1.6rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+#restart-btn:hover { background: var(--bg3); border-color: #444; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Data Structures<br>Quiz</h1>
+    <p>Pick the best structure — then reveal the solution</p>
+  </div>
+  <div class="score-bar">
+    <div class="score-display">
+      <span id="hdr-correct">0</span> / <span id="hdr-total">0</span> answered
+    </div>
+    <svg width="42" height="42" id="progress-ring">
+      <circle class="track" cx="21" cy="21" r="18"/>
+      <circle class="fill"  cx="21" cy="21" r="18" id="ring-fill"/>
+    </svg>
+  </div>
+</header>
+
+<div class="tabs-wrapper">
+  <button class="tab-btn active" data-tab="basics">
+    <span class="dot dot-basics"></span> Basics <span class="tab-check">✓</span>
+  </button>
+  <button class="tab-btn" data-tab="counting">
+    <span class="dot dot-counting"></span> Counting <span class="tab-check">✓</span>
+  </button>
+  <button class="tab-btn" data-tab="sets">
+    <span class="dot dot-sets"></span> Sets <span class="tab-check">✓</span>
+  </button>
+  <button class="tab-btn" data-tab="sequence">
+    <span class="dot dot-sequence"></span> Sequences <span class="tab-check">✓</span>
+  </button>
+  <button class="tab-btn" data-tab="perf">
+    <span class="dot dot-perf"></span> Performance <span class="tab-check">✓</span>
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 1 — BASICS
+══════════════════════════════════════ -->
+<div class="tab-panel active content" id="panel-basics">
+  <div class="panel-intro">
+    <div>
+      <h2>Basics</h2>
+      <p>Choosing the right structure for storage and access patterns</p>
+    </div>
+    <div class="panel-score">Tab score: <span class="ps-val" id="score-basics">0 / 4</span></div>
+  </div>
+  <div class="quiz-cards">
+
+    <div class="qcard" data-correct="dict">
+      <div class="qcard-header">
+        <span class="q-num">Q1</span>
+        <span class="q-text">You're storing user profiles and need to retrieve a profile instantly by username. Which structure do you use?</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list</button>
+        <button class="choice-btn" data-val="dict">dict</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-dict">dict</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--dict-c)"></span> O(1) lookup</div>
+            <p class="sol-why">A <code>dict</code> maps each username (key) to its profile (value). Retrieval is O(1) — it doesn't matter if you have 10 or 10 million users.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre>profiles <span class="op">=</span> {
+  <span class="str">"alice"</span>: {<span class="str">"age"</span>: <span class="num">30</span>, <span class="str">"city"</span>: <span class="str">"Paris"</span>},
+  <span class="str">"bob"</span>:   {<span class="str">"age"</span>: <span class="num">25</span>, <span class="str">"city"</span>: <span class="str">"Lyon"</span>},
+}
+
+<span class="cm"># O(1) — instant regardless of size</span>
+user <span class="op">=</span> profiles[<span class="str">"alice"</span>]
+<span class="cm"># {"age": 30, "city": "Paris"}</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="set">
+      <div class="qcard-header">
+        <span class="q-num">Q2</span>
+        <span class="q-text">You're building a login system and need to check whether a username is banned. The check runs on every login attempt.</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list</button>
+        <button class="choice-btn" data-val="dict">dict</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-set">set</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--set-c)"></span> O(1) membership</div>
+            <p class="sol-why">You only need "is X in there?" — no value needed. A <code>set</code> gives O(1) membership checks. A <code>list</code> would be O(n) — catastrophic at scale.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre>banned <span class="op">=</span> {<span class="str">"admin"</span>, <span class="str">"root"</span>, <span class="str">"superuser"</span>}
+
+<span class="kw">def</span> <span class="fn">can_login</span>(username):
+  <span class="kw">if</span> username <span class="kw">in</span> banned:  <span class="cm"># O(1)</span>
+    <span class="kw">return</span> <span class="hi">False</span>
+  <span class="kw">return</span> <span class="hi">True</span>
+
+<span class="cm"># list would be O(n) — never do this</span>
+<span class="cm"># banned_list = ["admin", "root", ...]</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="list">
+      <div class="qcard-header">
+        <span class="q-num">Q3</span>
+        <span class="q-text">You're processing a pipeline of tasks that must run in a specific order. You need to access them by their step number (0, 1, 2…).</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list</button>
+        <button class="choice-btn" data-val="dict">dict</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-list">list</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--list-c)"></span> O(1) by index</div>
+            <p class="sol-why">You need ordered, indexed access. A <code>list</code> is perfect: <code>steps[0]</code> is O(1). A <code>tuple</code> would also work but use <code>list</code> if steps might be added dynamically.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre>pipeline <span class="op">=</span> [<span class="str">"parse"</span>, <span class="str">"validate"</span>, <span class="str">"save"</span>, <span class="str">"notify"</span>]
+
+<span class="kw">for</span> i, step <span class="kw">in</span> <span class="fn">enumerate</span>(pipeline):
+  <span class="fn">print</span>(<span class="str">f"Step </span>{i}<span class="str">: </span>{step}<span class="str">"</span>)
+
+<span class="cm"># Access by index — O(1)</span>
+current <span class="op">=</span> pipeline[<span class="num">0</span>]   <span class="cm"># "parse"</span>
+last    <span class="op">=</span> pipeline[<span class="op">-</span><span class="num">1</span>]  <span class="cm"># "notify"</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="tuple">
+      <div class="qcard-header">
+        <span class="q-num">Q4</span>
+        <span class="q-text">You store GPS coordinates (latitude, longitude) for cities. These values never change and you want to use them as dictionary keys.</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list</button>
+        <button class="choice-btn" data-val="dict">dict</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-tuple">tuple</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--tuple-c)"></span> hashable → O(1) key</div>
+            <p class="sol-why">Only <strong>hashable</strong> types can be dict keys. Lists are mutable → not hashable → <code>TypeError</code>. Tuples are immutable → hashable → perfect composite key.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre>cities <span class="op">=</span> {}
+
+<span class="cm"># ✅ tuple — hashable, works as key</span>
+cities[(<span class="num">48.85</span>, <span class="num">2.35</span>)]  <span class="op">=</span> <span class="str">"Paris"</span>
+cities[(<span class="num">51.50</span>, <span class="op">-</span><span class="num">0.12</span>)] <span class="op">=</span> <span class="str">"London"</span>
+
+<span class="cm"># ❌ list — TypeError!</span>
+<span class="cm"># cities[[48.85, 2.35]] = "Paris"</span>
+
+lat, lon <span class="op">=</span> (<span class="num">48.85</span>, <span class="num">2.35</span>)  <span class="cm"># unpack</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 2 — COUNTING
+══════════════════════════════════════ -->
+<div class="tab-panel content" id="panel-counting">
+  <div class="panel-intro">
+    <div>
+      <h2>Counting &amp; Grouping</h2>
+      <p>Aggregating, tallying, and classifying data with dicts</p>
+    </div>
+    <div class="panel-score">Tab score: <span class="ps-val" id="score-counting">0 / 4</span></div>
+  </div>
+  <div class="quiz-cards">
+
+    <div class="qcard" data-correct="dict">
+      <div class="qcard-header">
+        <span class="q-num">Q5</span>
+        <span class="q-text">Given a list of words, count how many times each word appears. You need to look up a word's count in O(1).</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list</button>
+        <button class="choice-btn" data-val="dict">dict / Counter</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-dict">dict / Counter</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--dict-c)"></span> O(n) build, O(1) lookup</div>
+            <p class="sol-why">Build a frequency map in one pass. <code>Counter</code> from <code>collections</code> does this automatically and adds <code>most_common()</code>. Both are O(n) to build, O(1) per lookup.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre><span class="kw">from</span> collections <span class="kw">import</span> Counter
+
+words <span class="op">=</span> [<span class="str">"cat"</span>, <span class="str">"dog"</span>, <span class="str">"cat"</span>, <span class="str">"bird"</span>, <span class="str">"dog"</span>, <span class="str">"cat"</span>]
+
+counts <span class="op">=</span> <span class="fn">Counter</span>(words)
+<span class="cm"># Counter({"cat": 3, "dog": 2, "bird": 1})</span>
+
+counts[<span class="str">"cat"</span>]          <span class="cm"># 3 — O(1)</span>
+counts.<span class="fn">most_common</span>(<span class="num">1</span>) <span class="cm"># [("cat", 3)]</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="dict">
+      <div class="qcard-header">
+        <span class="q-num">Q6</span>
+        <span class="q-text">You need to group a list of words by their first letter — e.g. all words starting with "a" together, "b" together, etc.</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list of lists</button>
+        <button class="choice-btn" data-val="dict">dict of lists</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-dict">dict of lists</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--dict-c)"></span> O(n)</div>
+            <p class="sol-why">Map each category (key) to a list of items (value). Use <code>defaultdict(list)</code> to avoid checking if the key exists before appending.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre><span class="kw">from</span> collections <span class="kw">import</span> defaultdict
+
+words <span class="op">=</span> [<span class="str">"apple"</span>, <span class="str">"ant"</span>, <span class="str">"banana"</span>, <span class="str">"avocado"</span>, <span class="str">"blueberry"</span>]
+
+groups <span class="op">=</span> <span class="fn">defaultdict</span>(list)
+<span class="kw">for</span> w <span class="kw">in</span> words:
+  groups[w[<span class="num">0</span>]].<span class="fn">append</span>(w)
+
+<span class="cm"># {"a": ["apple","ant","avocado"],</span>
+<span class="cm">#  "b": ["banana","blueberry"]}</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="dict">
+      <div class="qcard-header">
+        <span class="q-num">Q7</span>
+        <span class="q-text">Classic interview: given <code>nums = [2, 7, 11, 15]</code> and <code>target = 9</code>, find two indices that sum to target. You need one-pass O(n).</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">nested loops</button>
+        <button class="choice-btn" data-val="dict">dict (seen values)</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-dict">dict</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--dict-c)"></span> O(n) — one pass</div>
+            <p class="sol-why">Store each value's index as you iterate. For each number, check if its complement (<code>target - n</code>) is already in the dict. O(n) vs O(n²) for nested loops — this is exactly what the interviewer tests.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre><span class="kw">def</span> <span class="fn">two_sum</span>(nums, target):
+  seen <span class="op">=</span> {}  <span class="cm"># value → index</span>
+  <span class="kw">for</span> i, n <span class="kw">in</span> <span class="fn">enumerate</span>(nums):
+    complement <span class="op">=</span> target <span class="op">-</span> n
+    <span class="kw">if</span> complement <span class="kw">in</span> seen:  <span class="cm"># O(1) check</span>
+      <span class="kw">return</span> [seen[complement], i]
+    seen[n] <span class="op">=</span> i
+  <span class="kw">return</span> []
+
+<span class="fn">two_sum</span>([<span class="num">2</span>, <span class="num">7</span>, <span class="num">11</span>, <span class="num">15</span>], <span class="num">9</span>)  <span class="cm"># [0, 1]</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="dict">
+      <div class="qcard-header">
+        <span class="q-num">Q8</span>
+        <span class="q-text">Find the first character in a string that appears only once. E.g. in <code>"leetcode"</code> the answer is <code>"l"</code>.</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list</button>
+        <button class="choice-btn" data-val="dict">dict (track counts)</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-dict">dict</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--dict-c)"></span> O(n)</div>
+            <p class="sol-why">Count each character with a dict, then scan the original string to find the first with count == 1. Two passes, both O(n). A set can't store counts — only presence.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre>s <span class="op">=</span> <span class="str">"leetcode"</span>
+
+counts <span class="op">=</span> {}
+<span class="kw">for</span> ch <span class="kw">in</span> s:
+  counts[ch] <span class="op">=</span> counts.<span class="fn">get</span>(ch, <span class="num">0</span>) <span class="op">+</span> <span class="num">1</span>
+
+<span class="kw">for</span> ch <span class="kw">in</span> s:
+  <span class="kw">if</span> counts[ch] <span class="op">==</span> <span class="num">1</span>:
+    <span class="fn">print</span>(ch)  <span class="cm"># "l"</span>
+    <span class="kw">break</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 3 — SETS
+══════════════════════════════════════ -->
+<div class="tab-panel content" id="panel-sets">
+  <div class="panel-intro">
+    <div>
+      <h2>Sets &amp; Uniqueness</h2>
+      <p>Deduplication, intersections, and membership at O(1)</p>
+    </div>
+    <div class="panel-score">Tab score: <span class="ps-val" id="score-sets">0 / 4</span></div>
+  </div>
+  <div class="quiz-cards">
+
+    <div class="qcard" data-correct="set">
+      <div class="qcard-header">
+        <span class="q-num">Q9</span>
+        <span class="q-text">You receive a list of email addresses from a form — some are duplicates. You need to send one email per unique address.</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list</button>
+        <button class="choice-btn" data-val="dict">dict</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-set">set</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--set-c)"></span> O(n) dedup</div>
+            <p class="sol-why">Converting to a set drops all duplicates in one step. If you need to preserve insertion order (e.g. send in the order received), use <code>dict.fromkeys()</code> instead.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre>emails <span class="op">=</span> [<span class="str">"a@x.com"</span>, <span class="str">"b@x.com"</span>, <span class="str">"a@x.com"</span>, <span class="str">"c@x.com"</span>]
+
+<span class="cm"># Fast dedup — order not guaranteed</span>
+unique <span class="op">=</span> <span class="fn">set</span>(emails)
+
+<span class="cm"># Preserve order (Python 3.7+)</span>
+unique_ordered <span class="op">=</span> <span class="fn">list</span>(<span class="fn">dict</span>.<span class="fn">fromkeys</span>(emails))
+<span class="cm"># ["a@x.com", "b@x.com", "c@x.com"]</span>
+
+<span class="kw">for</span> addr <span class="kw">in</span> unique_ordered:
+  <span class="fn">send_email</span>(addr)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="set">
+      <div class="qcard-header">
+        <span class="q-num">Q10</span>
+        <span class="q-text">You have two lists of users: those who completed module A and those who completed module B. Find users who completed <em>both</em>.</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">nested loop on lists</button>
+        <button class="choice-btn" data-val="dict">dict</button>
+        <button class="choice-btn" data-val="set">set intersection</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-set">set &amp; (intersection)</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--set-c)"></span> O(min(a,b))</div>
+            <p class="sol-why">A nested loop is O(n²). Set intersection <code>a &amp; b</code> is O(min(len(a), len(b))). Always convert to sets before intersection — the performance difference is massive at scale.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre>module_a <span class="op">=</span> {<span class="str">"alice"</span>, <span class="str">"bob"</span>, <span class="str">"clara"</span>}
+module_b <span class="op">=</span> {<span class="str">"bob"</span>, <span class="str">"dan"</span>, <span class="str">"clara"</span>}
+
+<span class="cm"># ✅ O(min(a,b)) — set intersection</span>
+both <span class="op">=</span> module_a <span class="op">&amp;</span> module_b
+<span class="cm"># {"bob", "clara"}</span>
+
+<span class="cm"># ❌ O(n²) — never do this</span>
+<span class="cm"># both = [u for u in module_a if u in module_b_list]</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="set">
+      <div class="qcard-header">
+        <span class="q-num">Q11</span>
+        <span class="q-text">Check if a list contains any duplicate values. Return <code>True</code> if there are duplicates, <code>False</code> otherwise. Must be O(n).</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">sorted list + loop</button>
+        <button class="choice-btn" data-val="dict">dict</button>
+        <button class="choice-btn" data-val="set">set comparison</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-set">set</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--set-c)"></span> O(n)</div>
+            <p class="sol-why">If a list has duplicates, its set will be smaller. Compare <code>len(nums) != len(set(nums))</code> — one line, O(n). Sorting would be O(n log n). A dict works too but a set is cleaner here.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre><span class="kw">def</span> <span class="fn">has_duplicate</span>(nums):
+  <span class="kw">return</span> <span class="fn">len</span>(nums) <span class="op">!=</span> <span class="fn">len</span>(<span class="fn">set</span>(nums))
+
+<span class="fn">has_duplicate</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>])      <span class="cm"># False</span>
+<span class="fn">has_duplicate</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">4</span>])      <span class="cm"># True</span>
+
+<span class="cm"># Early-exit version (stops sooner)</span>
+<span class="kw">def</span> <span class="fn">has_duplicate_v2</span>(nums):
+  seen <span class="op">=</span> <span class="fn">set</span>()
+  <span class="kw">for</span> n <span class="kw">in</span> nums:
+    <span class="kw">if</span> n <span class="kw">in</span> seen: <span class="kw">return</span> <span class="hi">True</span>
+    seen.<span class="fn">add</span>(n)
+  <span class="kw">return</span> <span class="hi">False</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="set">
+      <div class="qcard-header">
+        <span class="q-num">Q12</span>
+        <span class="q-text">You have a list of integers from 1 to n with one number missing. Find the missing number efficiently (no sorting).</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">sorted list scan</button>
+        <button class="choice-btn" data-val="dict">dict</button>
+        <button class="choice-btn" data-val="set">set difference</button>
+        <button class="choice-btn" data-val="tuple">tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-set">set</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--set-c)"></span> O(n)</div>
+            <p class="sol-why">Build a set of expected values and subtract the actual values. The result is the missing number. Set difference <code>-</code> is O(n). Alternatively, use math: <code>n*(n+1)//2 - sum(nums)</code> is even simpler.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre>nums <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>]  <span class="cm"># missing 3</span>
+n <span class="op">=</span> <span class="fn">max</span>(nums)
+
+<span class="cm"># Set difference approach</span>
+expected <span class="op">=</span> <span class="fn">set</span>(<span class="fn">range</span>(<span class="num">1</span>, n <span class="op">+</span> <span class="num">1</span>))
+missing <span class="op">=</span> expected <span class="op">-</span> <span class="fn">set</span>(nums)
+<span class="fn">print</span>(missing)  <span class="cm"># {3}</span>
+
+<span class="cm"># Math trick — even O(n) with less memory</span>
+missing2 <span class="op">=</span> n <span class="op">*</span> (n <span class="op">+</span> <span class="num">1</span>) <span class="op">//</span> <span class="num">2</span> <span class="op">-</span> <span class="fn">sum</span>(nums)
+<span class="fn">print</span>(missing2)  <span class="cm"># 3</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 4 — SEQUENCE
+══════════════════════════════════════ -->
+<div class="tab-panel content" id="panel-sequence">
+  <div class="panel-intro">
+    <div>
+      <h2>Order &amp; Sequences</h2>
+      <p>Stacks, queues, and when immutability matters</p>
+    </div>
+    <div class="panel-score">Tab score: <span class="ps-val" id="score-sequence">0 / 4</span></div>
+  </div>
+  <div class="quiz-cards">
+
+    <div class="qcard" data-correct="list">
+      <div class="qcard-header">
+        <span class="q-num">Q13</span>
+        <span class="q-text">You're implementing an undo feature in a text editor. Each action is pushed, and "Ctrl+Z" pops the last one. Which structure?</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list (as stack)</button>
+        <button class="choice-btn" data-val="dict">dict</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="deque">deque</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-list">list (stack)</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--list-c)"></span> O(1) push/pop</div>
+            <p class="sol-why">LIFO = Last In, First Out = stack. A Python <code>list</code> works perfectly: <code>.append()</code> pushes, <code>.pop()</code> pops — both O(1). No need for <code>deque</code> when you only touch one end.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre>history <span class="op">=</span> []
+
+<span class="cm"># User types something</span>
+history.<span class="fn">append</span>(<span class="str">"typed 'hello'"</span>)   <span class="cm"># push O(1)</span>
+history.<span class="fn">append</span>(<span class="str">"typed ' world'"</span>)  <span class="cm"># push O(1)</span>
+
+<span class="cm"># Ctrl+Z</span>
+last_action <span class="op">=</span> history.<span class="fn">pop</span>()          <span class="cm"># pop O(1)</span>
+<span class="fn">print</span>(last_action)  <span class="cm"># "typed ' world'"</span>
+
+<span class="cm"># Stack state: ["typed 'hello'"]</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="deque">
+      <div class="qcard-header">
+        <span class="q-num">Q14</span>
+        <span class="q-text">You're implementing BFS (breadth-first search) on a graph. You need to add nodes to the back and remove from the front — efficiently.</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list with pop(0)</button>
+        <button class="choice-btn" data-val="dict">dict</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="deque">deque</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-deque">deque</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--deque-c)"></span> O(1) both ends</div>
+            <p class="sol-why"><code>list.pop(0)</code> is O(n) — all elements shift left. <code>deque.popleft()</code> is O(1). For BFS with large graphs, this is the difference between O(n) and O(n²).</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre><span class="kw">from</span> collections <span class="kw">import</span> deque
+
+graph <span class="op">=</span> {<span class="str">"A"</span>: [<span class="str">"B"</span>, <span class="str">"C"</span>], <span class="str">"B"</span>: [<span class="str">"D"</span>], <span class="str">"C"</span>: [], <span class="str">"D"</span>: []}
+
+queue <span class="op">=</span> <span class="fn">deque</span>([<span class="str">"A"</span>])
+visited <span class="op">=</span> <span class="fn">set</span>()
+
+<span class="kw">while</span> queue:
+  node <span class="op">=</span> queue.<span class="fn">popleft</span>()   <span class="cm"># O(1) !</span>
+  <span class="kw">if</span> node <span class="kw">not in</span> visited:
+    visited.<span class="fn">add</span>(node)
+    queue.<span class="fn">extend</span>(graph[node])</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="list">
+      <div class="qcard-header">
+        <span class="q-num">Q15</span>
+        <span class="q-text">Given a string, check if it's a valid sequence of brackets: <code>"([{}])"</code> → valid, <code>"([)]"</code> → invalid.</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list (as stack)</button>
+        <button class="choice-btn" data-val="dict">dict only</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="deque">deque</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-list">list (stack) + dict</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--list-c)"></span> O(n)</div>
+            <p class="sol-why">Classic stack problem: push opening brackets, pop and compare when you see a closing bracket. A dict maps each closing bracket to its expected opener for clean comparison.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre><span class="kw">def</span> <span class="fn">is_valid</span>(s):
+  stack <span class="op">=</span> []
+  pairs <span class="op">=</span> {<span class="str">")"</span>: <span class="str">"("</span>, <span class="str">"]"</span>: <span class="str">"["</span>, <span class="str">"}"</span>: <span class="str">"{"</span>}
+  <span class="kw">for</span> ch <span class="kw">in</span> s:
+    <span class="kw">if</span> ch <span class="kw">in</span> <span class="str">"([{"</span>:
+      stack.<span class="fn">append</span>(ch)
+    <span class="kw">elif</span> <span class="kw">not</span> stack <span class="kw">or</span> stack.<span class="fn">pop</span>() <span class="op">!=</span> pairs[ch]:
+      <span class="kw">return</span> <span class="hi">False</span>
+  <span class="kw">return not</span> stack
+
+<span class="fn">is_valid</span>(<span class="str">"([{}])"</span>)   <span class="cm"># True</span>
+<span class="fn">is_valid</span>(<span class="str">"([)]"</span>)     <span class="cm"># False</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="tuple">
+      <div class="qcard-header">
+        <span class="q-num">Q16</span>
+        <span class="q-text">A function needs to return both the minimum and maximum of a list. How should you return these two values in Python?</span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">list [min, max]</button>
+        <button class="choice-btn" data-val="dict">dict {"min":…}</button>
+        <button class="choice-btn" data-val="set">set</button>
+        <button class="choice-btn" data-val="tuple">tuple (min, max)</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-tuple">tuple</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--tuple-c)"></span> idiomatic Python</div>
+            <p class="sol-why">Returning multiple values in Python implicitly creates a tuple. Unpacking with <code>lo, hi = min_max(nums)</code> is clean and Pythonic. A list would work but signals mutability — semantically wrong for a fixed pair.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre><span class="kw">def</span> <span class="fn">min_max</span>(nums):
+  <span class="kw">return</span> <span class="fn">min</span>(nums), <span class="fn">max</span>(nums)  <span class="cm"># tuple</span>
+
+<span class="cm"># Clean unpacking</span>
+lo, hi <span class="op">=</span> <span class="fn">min_max</span>([<span class="num">3</span>, <span class="num">1</span>, <span class="num">9</span>, <span class="num">4</span>, <span class="num">5</span>])
+<span class="cm"># lo = 1, hi = 9</span>
+
+<span class="cm"># What Python actually returns:</span>
+result <span class="op">=</span> <span class="fn">min_max</span>([<span class="num">3</span>, <span class="num">1</span>, <span class="num">9</span>])
+<span class="fn">print</span>(<span class="fn">type</span>(result))  <span class="cm"># &lt;class 'tuple'&gt;</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 5 — PERFORMANCE
+══════════════════════════════════════ -->
+<div class="tab-panel content" id="panel-perf">
+  <div class="panel-intro">
+    <div>
+      <h2>Performance Traps</h2>
+      <p>Spot the inefficiency — pick the optimal structure</p>
+    </div>
+    <div class="panel-score">Tab score: <span class="ps-val" id="score-perf">0 / 4</span></div>
+  </div>
+  <div class="quiz-cards">
+
+    <div class="qcard" data-correct="set">
+      <div class="qcard-header">
+        <span class="q-num">Q17</span>
+        <span class="q-text">This code is slow on large inputs. What single change fixes it?<br><br><code>seen = []<br>for n in nums:<br>&nbsp;&nbsp;if n in seen: return True<br>&nbsp;&nbsp;seen.append(n)</code></span>
+        <span class="q-status">✓</span>
+      </div>
+      <div class="choices">
+        <button class="choice-btn" data-val="list">sort seen first</button>
+        <button class="choice-btn" data-val="dict">use a dict</button>
+        <button class="choice-btn" data-val="set">change seen to a set</button>
+        <button class="choice-btn" data-val="tuple">use a tuple</button>
+      </div>
+      <div class="solution">
+        <div class="solution-inner">
+          <div class="sol-block">
+            <h4>Answer</h4>
+            <span class="ans-badge b-set">set</span>
+            <div class="complexity-pill"><span class="dot2" style="background:var(--set-c)"></span> O(n) → was O(n²)</div>
+            <p class="sol-why"><code>if n in seen</code> on a list is O(n) per iteration → O(n²) total. Changing <code>seen</code> to a <code>set</code> makes membership check O(1) → O(n) total. One word change, massive impact.</p>
+          </div>
+          <div class="sol-block">
+            <h4>Code</h4>
+            <pre><span class="cm"># ❌ O(n²) — list lookup inside loop</span>
+seen <span class="op">=</span> []
+<span class="kw">for</span> n <span class="kw">in</span> nums:
+  <span class="kw">if</span> n <span class="kw">in</span> seen: <span class="kw">return</span> <span class="hi">True</span>  <span class="cm"># O(n)!</span>
+  seen.<span class="fn">append</span>(n)
+
+<span class="cm"># ✅ O(n) — set lookup is O(1)</span>
+seen <span class="op">=</span> <span class="fn">set</span>()
+<span class="kw">for</span> n <span class="kw">in</span> nums:
+  <span class="kw">if</span> n <span class="kw">in</span> seen: <span class="kw">return</span> <span class="hi">True</span>  <span class="cm"># O(1) ✓</span>
+  seen.<span class="fn">add</span>(n)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qcard" data-correct="deque">
+      <div class="qcard-header">
+        <span class="q-num">Q18</span>
+        <span class="q-text">You're using a list as a queue and calling <code>queue.pop(0)</code> in a loop with 100k items. What should you use instead?</span>
+        <span class="q-status">✓</span>
+      </div>
+    </div>
+      </div>
+    </div>

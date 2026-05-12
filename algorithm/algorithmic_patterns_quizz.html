@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithmic Patterns — Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0c0e14; --bg2: #13151e; --bg3: #1a1d28;
+  --border: #252836; --text: #e2e0f0; --muted: #6b6d85;
+  --c1: #7c9ef8; --c2: #f87c8a; --c3: #4dd9ac; --c4: #f5a623;
+  --correct: #4dd9ac; --wrong: #f87c8a;
+}
+body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header {
+  padding: 2.5rem 3rem 2rem; border-bottom: 1px solid var(--border); background: var(--bg2);
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+}
+header h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; color: #fff; line-height: 1.1; }
+header p  { color: var(--muted); font-size: 0.88rem; margin-top: 0.35rem; }
+
+.score-bar { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+.score-display { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--muted); }
+.score-display span { color: #fff; font-weight: 500; }
+#progress-ring { transform: rotate(-90deg); }
+#progress-ring .track { fill: none; stroke: var(--border); stroke-width: 3; }
+#progress-ring .fill  { fill: none; stroke: var(--correct); stroke-width: 3; stroke-linecap: round;
+  stroke-dasharray: 113; stroke-dashoffset: 113; transition: stroke-dashoffset 0.5s ease; }
+
+.tabs-wrapper {
+  display: flex; border-bottom: 1px solid var(--border); background: var(--bg2);
+  padding: 0 3rem; overflow-x: auto;
+}
+.tab-btn {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--muted); font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 500;
+  padding: 0.85rem 1.3rem; cursor: pointer; white-space: nowrap;
+  transition: color .15s, border-color .15s; display: flex; align-items: center; gap: 0.5rem;
+}
+.tab-btn .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.tab-btn .tab-check { font-size: 0.7rem; opacity: 0; transition: opacity 0.2s; }
+.tab-btn.done .tab-check { opacity: 1; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: #fff; }
+.tab-btn[data-tab="array"].active  { border-color: var(--c1); color: var(--c1); }
+.tab-btn[data-tab="graph"].active  { border-color: var(--c2); color: var(--c2); }
+.tab-btn[data-tab="dp"].active     { border-color: var(--c3); color: var(--c3); }
+.tab-btn[data-tab="adv"].active    { border-color: var(--c4); color: var(--c4); }
+.dot-array{background:var(--c1)} .dot-graph{background:var(--c2)}
+.dot-dp{background:var(--c3)}    .dot-adv{background:var(--c4)}
+
+.content { padding: 2rem 3rem 4rem; max-width: 860px; }
+.tab-panel { display: none; } .tab-panel.active { display: block; }
+
+.panel-intro {
+  margin-bottom: 1.8rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.panel-intro h2 { font-size: 1.1rem; font-weight: 700; color: #fff; }
+.panel-intro p  { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
+.panel-score { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+.panel-score .ps-val { color: #fff; }
+
+.quiz-cards { display: flex; flex-direction: column; gap: 1.2rem; }
+
+.qcard {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.qcard.answered-correct { border-color: rgba(77,217,172,0.35); }
+.qcard.answered-wrong   { border-color: rgba(248,124,138,0.35); }
+
+.qcard-header { padding: 1.1rem 1.4rem; display: flex; align-items: flex-start; gap: 1rem; }
+.q-num { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--muted); min-width: 2rem; padding-top: 2px; flex-shrink: 0; }
+.q-text { font-size: 0.93rem; font-weight: 500; color: var(--text); line-height: 1.55; flex: 1; }
+.q-text code { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: #c4bfe8; }
+.q-status { font-size: 1rem; flex-shrink: 0; opacity: 0; transition: opacity 0.3s; }
+.qcard.answered-correct .q-status { opacity: 1; color: var(--correct); }
+.qcard.answered-wrong   .q-status { opacity: 1; color: var(--wrong); }
+
+.choices { padding: 0 1.4rem 1.2rem 3.4rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.choice-btn {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+  padding: 0.45rem 1rem; cursor: pointer; transition: background .15s, border-color .15s, transform .1s;
+}
+.choice-btn:hover:not(:disabled) { background: #1e2132; border-color: #3a3d55; transform: translateY(-1px); }
+.choice-btn:disabled { cursor: default; }
+.choice-btn.correct { background: rgba(77,217,172,0.15); border-color: rgba(77,217,172,0.5); color: var(--correct); }
+.choice-btn.wrong   { background: rgba(248,124,138,0.12); border-color: rgba(248,124,138,0.4); color: var(--wrong); }
+.choice-btn.reveal  { background: rgba(77,217,172,0.08); border-color: rgba(77,217,172,0.3); color: rgba(77,217,172,0.7); }
+
+.solution { border-top: 1px solid var(--border); max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.solution.open { max-height: 700px; }
+.solution-inner {
+  padding: 1.2rem 1.4rem 1.4rem 3.4rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; background: #0e1019;
+}
+@media (max-width: 640px) {
+  .solution-inner { grid-template-columns: 1fr; }
+  .content { padding: 1.5rem; } .tabs-wrapper { padding: 0 1rem; } header { padding: 1.5rem; }
+  .choices { padding-left: 1.4rem; }
+}
+
+.sol-block h4 { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
+.sol-why { font-size: 0.85rem; color: #b0aeca; line-height: 1.65; }
+.sol-why code { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; background: var(--bg3); padding: 1px 5px; border-radius: 3px; color: #c4bfe8; }
+
+.ans-badge { display: inline-block; font-size: 0.72rem; font-weight: 600; padding: 2px 10px; border-radius: 99px; margin-right: 0.4rem; margin-bottom: 0.6rem; }
+.b-a1 { background: rgba(124,158,248,0.15); color: var(--c1); border: 1px solid rgba(124,158,248,0.3); }
+.b-a2 { background: rgba(248,124,138,0.15); color: var(--c2); border: 1px solid rgba(248,124,138,0.3); }
+.b-a3 { background: rgba(77,217,172,0.15);  color: var(--c3); border: 1px solid rgba(77,217,172,0.3); }
+.b-a4 { background: rgba(245,166,35,0.15);  color: var(--c4); border: 1px solid rgba(245,166,35,0.3); }
+
+pre {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.85rem 1rem; overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; line-height: 1.75; color: #d0cce8;
+}
+.kw{color:#c084fc} .fn{color:#7cb8f8} .str{color:#86efac} .num{color:#fbbf24}
+.cm{color:#3e4060;font-style:italic} .op{color:#7a7d9c} .hi{color:#f9a8d4}
+
+#summary {
+  display: none; margin: 2rem 3rem 3rem; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 16px; padding: 2rem 2.5rem; text-align: center;
+}
+#summary h2 { font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; }
+#summary p  { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.summary-grid { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.sum-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1.4rem; min-width: 100px; }
+.sum-card .val { font-size: 1.8rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; display: block; }
+.sum-card .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.sum-card.c-correct .val { color: var(--correct); } .sum-card.c-wrong .val { color: var(--wrong); } .sum-card.c-total .val { color: #fff; }
+#restart-btn {
+  background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+  font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 500; padding: 0.6rem 1.6rem;
+  cursor: pointer; transition: background .15s;
+}
+#restart-btn:hover { background: var(--bg3); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Algorithmic Patterns<br>Quiz</h1>
+    <p>Identify the right pattern — then reveal the solution</p>
+  </div>
+  <div class="score-bar">
+    <div class="score-display"><span id="hdr-correct">0</span> / <span id="hdr-total">0</span> answered</div>
+    <svg width="42" height="42" id="progress-ring">
+      <circle class="track" cx="21" cy="21" r="18"/>
+      <circle class="fill"  cx="21" cy="21" r="18" id="ring-fill"/>
+    </svg>
+  </div>
+</header>
+
+<div class="tabs-wrapper">
+  <button class="tab-btn active" data-tab="array"><span class="dot dot-array"></span> Array &amp; String <span class="tab-check">✓</span></button>
+  <button class="tab-btn" data-tab="graph"><span class="dot dot-graph"></span> Graph &amp; Tree <span class="tab-check">✓</span></button>
+  <button class="tab-btn" data-tab="dp"><span class="dot dot-dp"></span> DP &amp; Greedy <span class="tab-check">✓</span></button>
+  <button class="tab-btn" data-tab="adv"><span class="dot dot-adv"></span> Advanced <span class="tab-check">✓</span></button>
+</div>
+
+<!-- ══ TAB 1: ARRAY & STRING ══ -->
+<div class="tab-panel active content" id="panel-array">
+  <div class="panel-intro">
+    <div><h2>Array &amp; String</h2><p>The most frequent patterns in coding interviews</p></div>
+    <div class="panel-score">Tab score: <span class="ps-val" id="score-array">0 / 5</span></div>
+  </div>
+  <div class="quiz-cards">
+
+    <div class="qcard" data-correct="two-pointers">
+      <div class="qcard-header"><span class="q-num">Q1</span>
+        <span class="q-text">Given a sorted array, find two numbers that add up to a target. You must do it in O(n) without extra memory.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="two-pointers">Two Pointers</button>
+        <button class="choice-btn" data-val="sliding-window">Sliding Window</button>
+        <button class="choice-btn" data-val="hash-map">Hash Map</button>
+        <button class="choice-btn" data-val="binary-search">Binary Search</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a1">Two Pointers</span>
+          <p class="sol-why">The array is <strong>sorted</strong> and we want a pair. Start left=0, right=end. If sum too small → move left right. If too big → move right left. O(n) time, O(1) space. Hash map would also give O(n) but uses O(n) extra memory — the constraint rules it out.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">two_sum_sorted</span>(arr, target):
+  left, right <span class="op">=</span> <span class="num">0</span>, <span class="fn">len</span>(arr) <span class="op">-</span> <span class="num">1</span>
+  <span class="kw">while</span> left <span class="op">&lt;</span> right:
+    s <span class="op">=</span> arr[left] <span class="op">+</span> arr[right]
+    <span class="kw">if</span>   s <span class="op">==</span> target: <span class="kw">return</span> [left, right]
+    <span class="kw">elif</span> s <span class="op">&lt;</span>  target: left <span class="op">+=</span> <span class="num">1</span>
+    <span class="kw">else</span>:             right <span class="op">-=</span> <span class="num">1</span>
+  <span class="kw">return</span> []</pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="sliding-window">
+      <div class="qcard-header"><span class="q-num">Q2</span>
+        <span class="q-text">Find the length of the longest substring without repeating characters. E.g. <code>"abcabcbb"</code> → 3 (<code>"abc"</code>).</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="two-pointers">Two Pointers</button>
+        <button class="choice-btn" data-val="sliding-window">Sliding Window</button>
+        <button class="choice-btn" data-val="hash-map">Hash Map only</button>
+        <button class="choice-btn" data-val="binary-search">Binary Search</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a1">Sliding Window</span>
+          <p class="sol-why">Variable-size window: expand right to add characters, shrink left when a duplicate enters the window. Use a set to track window contents. Classic variable sliding window — "longest substring with constraint" is the canonical signal.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">length_of_longest</span>(s):
+  seen <span class="op">=</span> <span class="fn">set</span>()
+  left <span class="op">=</span> best <span class="op">=</span> <span class="num">0</span>
+  <span class="kw">for</span> right, ch <span class="kw">in</span> <span class="fn">enumerate</span>(s):
+    <span class="kw">while</span> ch <span class="kw">in</span> seen:
+      seen.<span class="fn">discard</span>(s[left]); left <span class="op">+=</span> <span class="num">1</span>
+    seen.<span class="fn">add</span>(ch)
+    best <span class="op">=</span> <span class="fn">max</span>(best, right <span class="op">-</span> left <span class="op">+</span> <span class="num">1</span>)
+  <span class="kw">return</span> best
+
+<span class="fn">length_of_longest</span>(<span class="str">"abcabcbb"</span>)  <span class="cm"># 3</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="binary-search">
+      <div class="qcard-header"><span class="q-num">Q3</span>
+        <span class="q-text">You have a sorted array of 1 million elements. Find whether a value exists. The interviewer says: "think about efficiency."</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="two-pointers">Two Pointers</button>
+        <button class="choice-btn" data-val="sliding-window">Sliding Window</button>
+        <button class="choice-btn" data-val="hash-map">Hash Map</button>
+        <button class="choice-btn" data-val="binary-search">Binary Search</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a1">Binary Search</span>
+          <p class="sol-why">Sorted array + search = binary search. O(log n) means 1M elements requires at most 20 comparisons. A hash map would be O(1) per lookup but O(n) to build and O(n) memory — overkill if the array is already sorted and you're searching once.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">search</span>(arr, target):
+  lo, hi <span class="op">=</span> <span class="num">0</span>, <span class="fn">len</span>(arr) <span class="op">-</span> <span class="num">1</span>
+  <span class="kw">while</span> lo <span class="op">&lt;=</span> hi:
+    mid <span class="op">=</span> (lo <span class="op">+</span> hi) <span class="op">//</span> <span class="num">2</span>
+    <span class="kw">if</span>   arr[mid] <span class="op">==</span> target: <span class="kw">return</span> <span class="hi">True</span>
+    <span class="kw">elif</span> arr[mid] <span class="op">&lt;</span>  target: lo <span class="op">=</span> mid <span class="op">+</span> <span class="num">1</span>
+    <span class="kw">else</span>:                    hi <span class="op">=</span> mid <span class="op">-</span> <span class="num">1</span>
+  <span class="kw">return</span> <span class="hi">False</span>
+<span class="cm"># 1M elements → max 20 iterations (log₂1M ≈ 20)</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="hash-map">
+      <div class="qcard-header"><span class="q-num">Q4</span>
+        <span class="q-text">Find all pairs in an unsorted array that sum to a target. The array has no special ordering. Optimize for time.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="two-pointers">Two Pointers</button>
+        <button class="choice-btn" data-val="sliding-window">Sliding Window</button>
+        <button class="choice-btn" data-val="hash-map">Hash Map</button>
+        <button class="choice-btn" data-val="prefix-sum">Prefix Sum</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a1">Hash Map</span>
+          <p class="sol-why">The array is <strong>unsorted</strong> — two pointers require a sorted array. Hash map: for each number, check if <code>target - num</code> is already stored. O(n) time, O(n) space. Two pointers would require O(n log n) sort first.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">two_sum</span>(nums, target):
+  seen <span class="op">=</span> {}
+  <span class="kw">for</span> i, n <span class="kw">in</span> <span class="fn">enumerate</span>(nums):
+    complement <span class="op">=</span> target <span class="op">-</span> n
+    <span class="kw">if</span> complement <span class="kw">in</span> seen:
+      <span class="kw">return</span> [seen[complement], i]
+    seen[n] <span class="op">=</span> i
+  <span class="kw">return</span> []
+
+<span class="cm"># Key insight: check complement BEFORE storing</span>
+<span class="cm"># to avoid using the same element twice</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="prefix-sum">
+      <div class="qcard-header"><span class="q-num">Q5</span>
+        <span class="q-text">Count the number of subarrays that sum to exactly k. The array has both positive and negative numbers.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="sliding-window">Sliding Window</button>
+        <button class="choice-btn" data-val="two-pointers">Two Pointers</button>
+        <button class="choice-btn" data-val="prefix-sum">Prefix Sum + Hash Map</button>
+        <button class="choice-btn" data-val="binary-search">Binary Search</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a1">Prefix Sum + Hash Map</span>
+          <p class="sol-why">Sliding window only works with positive numbers (window shrinks meaningfully). With negatives, prefix sum + hash map is the key: <code>count += seen[prefix - k]</code> counts subarrays ending here that sum to k. O(n) time and space.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">subarray_sum</span>(nums, k):
+  count <span class="op">=</span> prefix <span class="op">=</span> <span class="num">0</span>
+  seen <span class="op">=</span> {<span class="num">0</span>: <span class="num">1</span>}   <span class="cm"># prefix 0 seen once</span>
+  <span class="kw">for</span> n <span class="kw">in</span> nums:
+    prefix <span class="op">+=</span> n
+    count <span class="op">+=</span> seen.<span class="fn">get</span>(prefix <span class="op">-</span> k, <span class="num">0</span>)
+    seen[prefix] <span class="op">=</span> seen.<span class="fn">get</span>(prefix, <span class="num">0</span>) <span class="op">+</span> <span class="num">1</span>
+  <span class="kw">return</span> count
+
+<span class="fn">subarray_sum</span>([<span class="num">1</span>, <span class="op">-</span><span class="num">1</span>, <span class="num">1</span>, <span class="num">1</span>], <span class="num">1</span>)  <span class="cm"># 3</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ TAB 2: GRAPH & TREE ══ -->
+<div class="tab-panel content" id="panel-graph">
+  <div class="panel-intro">
+    <div><h2>Graph &amp; Tree</h2><p>Traversal and structural problems</p></div>
+    <div class="panel-score">Tab score: <span class="ps-val" id="score-graph">0 / 5</span></div>
+  </div>
+  <div class="quiz-cards">
+
+    <div class="qcard" data-correct="bfs">
+      <div class="qcard-header"><span class="q-num">Q6</span>
+        <span class="q-text">Find the shortest path between two nodes in an unweighted graph. "Shortest" means fewest edges.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="dfs">DFS</button>
+        <button class="choice-btn" data-val="bfs">BFS</button>
+        <button class="choice-btn" data-val="backtrack">Backtracking</button>
+        <button class="choice-btn" data-val="dijkstra">Dijkstra</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a2">BFS</span>
+          <p class="sol-why">BFS explores level by level — all nodes at distance 1, then distance 2, etc. The <strong>first time</strong> you reach the target, you've found the shortest path. DFS would find <em>a</em> path, not necessarily the shortest. Dijkstra is for weighted graphs.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="kw">def</span> <span class="fn">shortest_path</span>(graph, src, dst):
+  queue <span class="op">=</span> <span class="fn">deque</span>([(src, <span class="num">0</span>)])
+  visited <span class="op">=</span> {src}
+  <span class="kw">while</span> queue:
+    node, dist <span class="op">=</span> queue.<span class="fn">popleft</span>()
+    <span class="kw">if</span> node <span class="op">==</span> dst: <span class="kw">return</span> dist
+    <span class="kw">for</span> nei <span class="kw">in</span> graph[node]:
+      <span class="kw">if</span> nei <span class="kw">not in</span> visited:
+        visited.<span class="fn">add</span>(nei)
+        queue.<span class="fn">append</span>((nei, dist<span class="op">+</span><span class="num">1</span>))
+  <span class="kw">return</span> <span class="op">-</span><span class="num">1</span>  <span class="cm"># not reachable</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="dfs">
+      <div class="qcard-header"><span class="q-num">Q7</span>
+        <span class="q-text">Count the number of islands in a 2D grid of <code>'1'</code> (land) and <code>'0'</code> (water). Connected <code>'1'</code>s (4-directionally) form one island.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="bfs">BFS</button>
+        <button class="choice-btn" data-val="dfs">DFS</button>
+        <button class="choice-btn" data-val="dp">Dynamic Programming</button>
+        <button class="choice-btn" data-val="union-find">Union-Find</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a2">DFS</span>
+          <p class="sol-why">Classic DFS (or BFS — both work). When you find a '1', DFS into all connected cells and mark them visited. Each time you start a DFS from an unmarked '1', increment the island count. Union-Find also works but DFS is more intuitive here.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">num_islands</span>(grid):
+  count <span class="op">=</span> <span class="num">0</span>
+  <span class="kw">def</span> <span class="fn">dfs</span>(r, c):
+    <span class="kw">if not</span> (<span class="num">0</span><span class="op">&lt;=</span>r<span class="op">&lt;</span><span class="fn">len</span>(grid) <span class="kw">and</span> <span class="num">0</span><span class="op">&lt;=</span>c<span class="op">&lt;</span><span class="fn">len</span>(grid[<span class="num">0</span>])
+            <span class="kw">and</span> grid[r][c]<span class="op">==</span><span class="str">'1'</span>): <span class="kw">return</span>
+    grid[r][c] <span class="op">=</span> <span class="str">'0'</span>  <span class="cm"># sink it</span>
+    <span class="kw">for</span> dr,dc <span class="kw">in</span> [(<span class="num">1</span>,<span class="num">0</span>),(<span class="op">-</span><span class="num">1</span>,<span class="num">0</span>),(<span class="num">0</span>,<span class="num">1</span>),(<span class="num">0</span>,<span class="op">-</span><span class="num">1</span>)]:
+      <span class="fn">dfs</span>(r<span class="op">+</span>dr, c<span class="op">+</span>dc)
+  <span class="kw">for</span> r <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(grid)):
+    <span class="kw">for</span> c <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(grid[<span class="num">0</span>])):
+      <span class="kw">if</span> grid[r][c]<span class="op">==</span><span class="str">'1'</span>: <span class="fn">dfs</span>(r,c); count<span class="op">+=</span><span class="num">1</span>
+  <span class="kw">return</span> count</pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="backtrack">
+      <div class="qcard-header"><span class="q-num">Q8</span>
+        <span class="q-text">Generate all permutations of a list of distinct integers. E.g. <code>[1,2,3]</code> → all 6 orderings.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="dfs">DFS only</button>
+        <button class="choice-btn" data-val="bfs">BFS</button>
+        <button class="choice-btn" data-val="backtrack">Backtracking</button>
+        <button class="choice-btn" data-val="dp">Dynamic Programming</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a2">Backtracking</span>
+          <p class="sol-why">"Generate ALL …" is the backtracking signal. Build the permutation incrementally: choose a number, recurse, then unchoose (backtrack). The choose/recurse/unchoose template works for permutations, combinations, subsets, and constraint satisfaction.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">permutations</span>(nums):
+  result <span class="op">=</span> []
+  <span class="kw">def</span> <span class="fn">backtrack</span>(current, remaining):
+    <span class="kw">if not</span> remaining:
+      result.<span class="fn">append</span>(current[:]); <span class="kw">return</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(remaining)):
+      current.<span class="fn">append</span>(remaining[i])
+      <span class="fn">backtrack</span>(current, remaining[:i] <span class="op">+</span> remaining[i<span class="op">+</span><span class="num">1</span>:])
+      current.<span class="fn">pop</span>()
+  <span class="fn">backtrack</span>([], nums)
+  <span class="kw">return</span> result</pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="fast-slow">
+      <div class="qcard-header"><span class="q-num">Q9</span>
+        <span class="q-text">Detect if a linked list has a cycle. You must use O(1) extra memory — no hash set allowed.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="hash-map">Hash Set</button>
+        <button class="choice-btn" data-val="two-pointers">Two Pointers (same speed)</button>
+        <button class="choice-btn" data-val="fast-slow">Fast &amp; Slow Pointers</button>
+        <button class="choice-btn" data-val="dfs">DFS</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a2">Fast &amp; Slow Pointers</span>
+          <p class="sol-why">Floyd's cycle detection: fast moves 2 steps, slow moves 1. If a cycle exists, fast will "lap" slow and they meet. If no cycle, fast reaches null. This is O(1) space — the constraint makes this the only valid answer (hash set would be O(n)).</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">has_cycle</span>(head):
+  slow, fast <span class="op">=</span> head, head
+  <span class="kw">while</span> fast <span class="kw">and</span> fast.next:
+    slow <span class="op">=</span> slow.next
+    fast <span class="op">=</span> fast.next.next
+    <span class="kw">if</span> slow <span class="op">is</span> fast:
+      <span class="kw">return</span> <span class="hi">True</span>   <span class="cm"># met → cycle!</span>
+  <span class="kw">return</span> <span class="hi">False</span>
+
+<span class="cm"># Key: "fast laps slow" only happens in a cycle</span>
+<span class="cm"># O(n) time, O(1) space ✓</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="inorder">
+      <div class="qcard-header"><span class="q-num">Q10</span>
+        <span class="q-text">You have a Binary Search Tree. Produce the values in ascending (sorted) order without any extra sorting step.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="preorder">Preorder traversal</button>
+        <button class="choice-btn" data-val="inorder">Inorder traversal</button>
+        <button class="choice-btn" data-val="postorder">Postorder traversal</button>
+        <button class="choice-btn" data-val="bfs">Level-order (BFS)</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a2">Inorder traversal</span>
+          <p class="sol-why">The BST property guarantees: left subtree < node < right subtree. Inorder (Left → Node → Right) visits them in exactly this order, producing sorted output. This is a fundamental BST property — memorize it.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">inorder</span>(node, result<span class="op">=</span>[]):
+  <span class="kw">if not</span> node: <span class="kw">return</span> result
+  <span class="fn">inorder</span>(node.left, result)   <span class="cm"># Left</span>
+  result.<span class="fn">append</span>(node.val)      <span class="cm"># Node</span>
+  <span class="fn">inorder</span>(node.right, result)  <span class="cm"># Right</span>
+  <span class="kw">return</span> result
+
+<span class="cm"># BST inorder = sorted array</span>
+<span class="cm"># Preorder  = Node L R (serialize)</span>
+<span class="cm"># Postorder = L R Node (delete/height)</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ TAB 3: DP & GREEDY ══ -->
+<div class="tab-panel content" id="panel-dp">
+  <div class="panel-intro">
+    <div><h2>DP &amp; Greedy</h2><p>Optimization — count, minimize, or maximize</p></div>
+    <div class="panel-score">Tab score: <span class="ps-val" id="score-dp">0 / 5</span></div>
+  </div>
+  <div class="quiz-cards">
+
+    <div class="qcard" data-correct="dp">
+      <div class="qcard-header"><span class="q-num">Q11</span>
+        <span class="q-text">Count the number of distinct ways to climb n stairs, taking 1 or 2 steps at a time. E.g. n=4 → 5 ways.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="greedy">Greedy</button>
+        <button class="choice-btn" data-val="dp">Dynamic Programming</button>
+        <button class="choice-btn" data-val="backtrack">Backtracking</button>
+        <button class="choice-btn" data-val="bfs">BFS</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a3">Dynamic Programming</span>
+          <p class="sol-why">"Count the number of ways" + overlapping subproblems = DP. <code>ways(n) = ways(n-1) + ways(n-2)</code> — Fibonacci pattern. Backtracking would find all paths (exponential), DP caches the count (linear).</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">climb_stairs</span>(n):
+  <span class="kw">if</span> n <span class="op">&lt;=</span> <span class="num">2</span>: <span class="kw">return</span> n
+  prev, curr <span class="op">=</span> <span class="num">1</span>, <span class="num">2</span>
+  <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>, n <span class="op">+</span> <span class="num">1</span>):
+    prev, curr <span class="op">=</span> curr, prev <span class="op">+</span> curr
+  <span class="kw">return</span> curr
+
+<span class="cm"># dp[i] = dp[i-1] + dp[i-2]  (Fibonacci!)</span>
+<span class="fn">climb_stairs</span>(<span class="num">4</span>)  <span class="cm"># 5</span>
+<span class="fn">climb_stairs</span>(<span class="num">5</span>)  <span class="cm"># 8</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="greedy">
+      <div class="qcard-header"><span class="q-num">Q12</span>
+        <span class="q-text">You have a list of meetings with start/end times. Find the minimum number of conference rooms needed to hold all of them simultaneously.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="dp">Dynamic Programming</button>
+        <button class="choice-btn" data-val="greedy">Greedy + Heap</button>
+        <button class="choice-btn" data-val="bfs">BFS</button>
+        <button class="choice-btn" data-val="backtrack">Backtracking</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a3">Greedy + Heap</span>
+          <p class="sol-why">Sort meetings by start. Use a min-heap tracking end times of active meetings. For each meeting: if the earliest-ending room is free (heap top ≤ current start), reuse it (heapreplace). Otherwise, open a new room (heappush). The heap size = rooms needed.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">import</span> heapq
+
+<span class="kw">def</span> <span class="fn">min_rooms</span>(intervals):
+  intervals.<span class="fn">sort</span>(key<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="num">0</span>])
+  heap <span class="op">=</span> []   <span class="cm"># end times of active rooms</span>
+  <span class="kw">for</span> start, end <span class="kw">in</span> intervals:
+    <span class="kw">if</span> heap <span class="kw">and</span> heap[<span class="num">0</span>] <span class="op">&lt;=</span> start:
+      heapq.<span class="fn">heapreplace</span>(heap, end)  <span class="cm"># reuse</span>
+    <span class="kw">else</span>:
+      heapq.<span class="fn">heappush</span>(heap, end)     <span class="cm"># new room</span>
+  <span class="kw">return</span> <span class="fn">len</span>(heap)</pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="merge-intervals">
+      <div class="qcard-header"><span class="q-num">Q13</span>
+        <span class="q-text">Given <code>[[1,3],[2,6],[8,10],[15,18]]</code>, merge all overlapping intervals. Output: <code>[[1,6],[8,10],[15,18]]</code>.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="dp">Dynamic Programming</button>
+        <button class="choice-btn" data-val="greedy">Greedy (sort + scan)</button>
+        <button class="choice-btn" data-val="merge-intervals">Merge Intervals pattern</button>
+        <button class="choice-btn" data-val="two-pointers">Two Pointers</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a3">Merge Intervals</span>
+          <p class="sol-why">The canonical merge intervals pattern: sort by start, keep a result list, extend the last interval's end if the current one overlaps (<code>curr.start ≤ last.end</code>), otherwise append. O(n log n) for the sort, O(n) for the merge pass.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">merge</span>(intervals):
+  intervals.<span class="fn">sort</span>(key<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="num">0</span>])
+  merged <span class="op">=</span> [intervals[<span class="num">0</span>]]
+  <span class="kw">for</span> s, e <span class="kw">in</span> intervals[<span class="num">1</span>:]:
+    <span class="kw">if</span> s <span class="op">&lt;=</span> merged[<span class="op">-</span><span class="num">1</span>][<span class="num">1</span>]:   <span class="cm"># overlap</span>
+      merged[<span class="op">-</span><span class="num">1</span>][<span class="num">1</span>] <span class="op">=</span> <span class="fn">max</span>(merged[<span class="op">-</span><span class="num">1</span>][<span class="num">1</span>], e)
+    <span class="kw">else</span>:
+      merged.<span class="fn">append</span>([s, e])
+  <span class="kw">return</span> merged</pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="heap">
+      <div class="qcard-header"><span class="q-num">Q14</span>
+        <span class="q-text">Find the K most frequent words in a list. Sorting all words would give O(n log n) — can you do better?</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="dp">Dynamic Programming</button>
+        <button class="choice-btn" data-val="sort">Sort all + slice</button>
+        <button class="choice-btn" data-val="heap">Min-Heap of size K</button>
+        <button class="choice-btn" data-val="bfs">BFS</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a3">Min-Heap of size K</span>
+          <p class="sol-why">Count frequencies with a dict, then maintain a min-heap of size K. Each push+pop is O(log k). Total: O(n log k) vs O(n log n) for full sort. When k is much smaller than n, the improvement is significant. The heap gives you the top K without sorting everything.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">import</span> heapq
+<span class="kw">from</span> collections <span class="kw">import</span> Counter
+
+<span class="kw">def</span> <span class="fn">top_k_frequent</span>(words, k):
+  counts <span class="op">=</span> <span class="fn">Counter</span>(words)
+  <span class="cm"># min-heap by (-freq, word) for tiebreak</span>
+  heap <span class="op">=</span> []
+  <span class="kw">for</span> word, freq <span class="kw">in</span> counts.<span class="fn">items</span>():
+    heapq.<span class="fn">heappush</span>(heap, (freq, word))
+    <span class="kw">if</span> <span class="fn">len</span>(heap) <span class="op">&gt;</span> k:
+      heapq.<span class="fn">heappop</span>(heap)
+  <span class="kw">return</span> [w <span class="kw">for</span> _, w <span class="kw">in</span> <span class="fn">sorted</span>(heap, reverse<span class="op">=</span><span class="hi">True</span>)]</pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="dp">
+      <div class="qcard-header"><span class="q-num">Q15</span>
+        <span class="q-text">Given two strings, find the length of their longest common subsequence. E.g. <code>"abcde"</code> and <code>"ace"</code> → 3.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="two-pointers">Two Pointers</button>
+        <button class="choice-btn" data-val="sliding-window">Sliding Window</button>
+        <button class="choice-btn" data-val="backtrack">Backtracking</button>
+        <button class="choice-btn" data-val="dp">Dynamic Programming (2D)</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a3">Dynamic Programming (2D)</span>
+          <p class="sol-why">Classic DP: <code>dp[i][j]</code> = LCS of <code>s1[:i]</code> and <code>s2[:j]</code>. If characters match: <code>dp[i][j] = dp[i-1][j-1] + 1</code>. Otherwise: <code>max(dp[i-1][j], dp[i][j-1])</code>. Backtracking would be exponential; DP is O(m×n).</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">lcs</span>(s1, s2):
+  m, n <span class="op">=</span> <span class="fn">len</span>(s1), <span class="fn">len</span>(s2)
+  dp <span class="op">=</span> [[<span class="num">0</span>] <span class="op">*</span> (n<span class="op">+</span><span class="num">1</span>) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(m<span class="op">+</span><span class="num">1</span>)]
+  <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, m<span class="op">+</span><span class="num">1</span>):
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, n<span class="op">+</span><span class="num">1</span>):
+      <span class="kw">if</span> s1[i<span class="op">-</span><span class="num">1</span>] <span class="op">==</span> s2[j<span class="op">-</span><span class="num">1</span>]:
+        dp[i][j] <span class="op">=</span> dp[i<span class="op">-</span><span class="num">1</span>][j<span class="op">-</span><span class="num">1</span>] <span class="op">+</span> <span class="num">1</span>
+      <span class="kw">else</span>:
+        dp[i][j] <span class="op">=</span> <span class="fn">max</span>(dp[i<span class="op">-</span><span class="num">1</span>][j], dp[i][j<span class="op">-</span><span class="num">1</span>])
+  <span class="kw">return</span> dp[m][n]</pre>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ TAB 4: ADVANCED ══ -->
+<div class="tab-panel content" id="panel-adv">
+  <div class="panel-intro">
+    <div><h2>Advanced</h2><p>Less common — still tested at senior level</p></div>
+    <div class="panel-score">Tab score: <span class="ps-val" id="score-adv">0 / 5</span></div>
+  </div>
+  <div class="quiz-cards">
+
+    <div class="qcard" data-correct="union-find">
+      <div class="qcard-header"><span class="q-num">Q16</span>
+        <span class="q-text">Given n nodes and a list of edges added one by one, determine after each addition whether all nodes are connected. Must be efficient for dynamic updates.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="bfs">BFS after each edge</button>
+        <button class="choice-btn" data-val="dfs">DFS after each edge</button>
+        <button class="choice-btn" data-val="union-find">Union-Find</button>
+        <button class="choice-btn" data-val="dp">Dynamic Programming</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a4">Union-Find</span>
+          <p class="sol-why">BFS/DFS after each edge is O(V+E) per edge → O(n²) total. Union-Find merges components in near-O(1) amortized. Track the number of distinct components: start at n, decrement each time you union two different sets. When count=1, all connected.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">class</span> <span class="fn">UF</span>:
+  <span class="kw">def</span> <span class="fn">__init__</span>(self, n):
+    self.p <span class="op">=</span> <span class="fn">list</span>(<span class="fn">range</span>(n)); self.count <span class="op">=</span> n
+  <span class="kw">def</span> <span class="fn">find</span>(self, x):
+    <span class="kw">if</span> self.p[x]<span class="op">!=</span>x: self.p[x]<span class="op">=</span>self.<span class="fn">find</span>(self.p[x])
+    <span class="kw">return</span> self.p[x]
+  <span class="kw">def</span> <span class="fn">union</span>(self, x, y):
+    px,py <span class="op">=</span> self.<span class="fn">find</span>(x), self.<span class="fn">find</span>(y)
+    <span class="kw">if</span> px<span class="op">!=</span>py: self.p[px]<span class="op">=</span>py; self.count<span class="op">-=</span><span class="num">1</span>
+  <span class="kw">def</span> <span class="fn">connected</span>(self): <span class="kw">return</span> self.count <span class="op">==</span> <span class="num">1</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="mono-stack">
+      <div class="qcard-header"><span class="q-num">Q17</span>
+        <span class="q-text">For each day in a temperature list, find how many days until a warmer temperature. E.g. <code>[73,74,75,71]</code> → <code>[1,1,0,0]</code>.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="two-pointers">Two Pointers</button>
+        <button class="choice-btn" data-val="dp">Dynamic Programming</button>
+        <button class="choice-btn" data-val="mono-stack">Monotonic Stack</button>
+        <button class="choice-btn" data-val="binary-search">Binary Search</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a4">Monotonic Stack</span>
+          <p class="sol-why">"Next greater element" = monotonic stack. Maintain a stack of indices of days we haven't resolved yet (in decreasing temperature order). When a warmer day arrives, pop everything cooler and record the wait. O(n) — each index pushed and popped once.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">def</span> <span class="fn">daily_temps</span>(temps):
+  ans <span class="op">=</span> [<span class="num">0</span>] <span class="op">*</span> <span class="fn">len</span>(temps)
+  stack <span class="op">=</span> []  <span class="cm"># indices, decreasing temp</span>
+  <span class="kw">for</span> i, t <span class="kw">in</span> <span class="fn">enumerate</span>(temps):
+    <span class="kw">while</span> stack <span class="kw">and</span> temps[stack[<span class="op">-</span><span class="num">1</span>]] <span class="op">&lt;</span> t:
+      j <span class="op">=</span> stack.<span class="fn">pop</span>()
+      ans[j] <span class="op">=</span> i <span class="op">-</span> j
+    stack.<span class="fn">append</span>(i)
+  <span class="kw">return</span> ans
+
+<span class="fn">daily_temps</span>([<span class="num">73</span>,<span class="num">74</span>,<span class="num">75</span>,<span class="num">71</span>,<span class="num">69</span>,<span class="num">72</span>,<span class="num">76</span>,<span class="num">73</span>])
+<span class="cm"># [1, 1, 4, 2, 1, 1, 0, 0]</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="trie">
+      <div class="qcard-header"><span class="q-num">Q18</span>
+        <span class="q-text">Build a search feature that instantly checks if any stored word starts with a given prefix. E.g. given words <code>["apple","app","banana"]</code>, <code>startsWith("app")</code> → True.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="hash-set">Hash Set with iteration</button>
+        <button class="choice-btn" data-val="binary-search">Binary Search on sorted list</button>
+        <button class="choice-btn" data-val="trie">Trie (Prefix Tree)</button>
+        <button class="choice-btn" data-val="dp">Dynamic Programming</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a4">Trie</span>
+          <p class="sol-why">Tries are built for prefix queries. Lookup is O(L) where L is the prefix length — independent of how many words are stored. A hash set would require iterating all words to check prefixes. Binary search works on full words but not arbitrary prefixes efficiently.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">class</span> <span class="fn">Trie</span>:
+  <span class="kw">def</span> <span class="fn">__init__</span>(self):
+    self.root <span class="op">=</span> {}
+
+  <span class="kw">def</span> <span class="fn">insert</span>(self, word):
+    node <span class="op">=</span> self.root
+    <span class="kw">for</span> ch <span class="kw">in</span> word:
+      node <span class="op">=</span> node.<span class="fn">setdefault</span>(ch, {})
+    node[<span class="str">"#"</span>] <span class="op">=</span> <span class="hi">True</span>    <span class="cm"># end marker</span>
+
+  <span class="kw">def</span> <span class="fn">starts_with</span>(self, prefix):
+    node <span class="op">=</span> self.root
+    <span class="kw">for</span> ch <span class="kw">in</span> prefix:
+      <span class="kw">if</span> ch <span class="kw">not in</span> node: <span class="kw">return</span> <span class="hi">False</span>
+      node <span class="op">=</span> node[ch]
+    <span class="kw">return</span> <span class="hi">True</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="topo-sort">
+      <div class="qcard-header"><span class="q-num">Q19</span>
+        <span class="q-text">You have n courses. Some courses have prerequisites. Determine if it's possible to complete all courses (detect if there's a circular dependency).</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="dfs">DFS cycle detection</button>
+        <button class="choice-btn" data-val="bfs">BFS level order</button>
+        <button class="choice-btn" data-val="topo-sort">Topological Sort (Kahn)</button>
+        <button class="choice-btn" data-val="union-find">Union-Find</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a4">Topological Sort</span>
+          <p class="sol-why">Dependency ordering = topological sort. Use Kahn's algorithm (BFS-based): track in-degrees, start with 0-in-degree nodes, reduce neighbors' in-degrees. If all n courses are processed → no cycle → possible. If stuck before processing all → cycle detected.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">from</span> collections <span class="kw">import</span> deque, defaultdict
+
+<span class="kw">def</span> <span class="fn">can_finish</span>(n, prereqs):
+  indeg <span class="op">=</span> [<span class="num">0</span>] <span class="op">*</span> n; g <span class="op">=</span> <span class="fn">defaultdict</span>(list)
+  <span class="kw">for</span> a, b <span class="kw">in</span> prereqs:
+    g[b].<span class="fn">append</span>(a); indeg[a] <span class="op">+=</span> <span class="num">1</span>
+  q <span class="op">=</span> <span class="fn">deque</span>(i <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n) <span class="kw">if</span> indeg[i]<span class="op">==</span><span class="num">0</span>)
+  done <span class="op">=</span> <span class="num">0</span>
+  <span class="kw">while</span> q:
+    u <span class="op">=</span> q.<span class="fn">popleft</span>(); done <span class="op">+=</span> <span class="num">1</span>
+    <span class="kw">for</span> v <span class="kw">in</span> g[u]:
+      indeg[v] <span class="op">-=</span> <span class="num">1</span>
+      <span class="kw">if</span> indeg[v]<span class="op">==</span><span class="num">0</span>: q.<span class="fn">append</span>(v)
+  <span class="kw">return</span> done <span class="op">==</span> n</pre>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="qcard" data-correct="dijkstra">
+      <div class="qcard-header"><span class="q-num">Q20</span>
+        <span class="q-text">A network has nodes and weighted edges (non-negative). Find the minimum time for a signal to reach all nodes from a given source.</span>
+        <span class="q-status">✓</span></div>
+      <div class="choices">
+        <button class="choice-btn" data-val="bfs">BFS (unweighted)</button>
+        <button class="choice-btn" data-val="dfs">DFS</button>
+        <button class="choice-btn" data-val="dp">Dynamic Programming</button>
+        <button class="choice-btn" data-val="dijkstra">Dijkstra's Algorithm</button>
+      </div>
+      <div class="solution"><div class="solution-inner">
+        <div class="sol-block">
+          <h4>Answer</h4><span class="ans-badge b-a4">Dijkstra's Algorithm</span>
+          <p class="sol-why">Weighted graph + shortest path + non-negative weights = Dijkstra. BFS only works for unweighted (or unit-weight) graphs. Dijkstra uses a min-heap: always expand the closest unvisited node. Return the max distance to all nodes — if any unreachable, return -1.</p>
+        </div>
+        <div class="sol-block">
+          <h4>Code</h4>
+          <pre><span class="kw">import</span> heapq
+<span class="kw">from</span> collections <span class="kw">import</span> defaultdict
+
+<span class="kw">def</span> <span class="fn">network_delay</span>(times, n, src):
+  g <span class="op">=</span> <span class="fn">defaultdict</span>(list)
+  <span class="kw">for</span> u,v,w <span class="kw">in</span> times: g[u].<span class="fn">append</span>((w,v))
+  dist <span class="op">=</span> {src:<span class="num">0</span>}; heap <span class="op">=</span> [(<span class="num">0</span>,src)]
+  <span class="kw">while</span> heap:
+    d,u <span class="op">=</span> heapq.<span class="fn">heappop</span>(heap)
+    <span class="kw">if</span> d <span class="op">&gt;</span> dist.<span class="fn">get</span>(u,<span class="fn">float</span>(<span class="str">'inf'</span>)): <span class="kw">continue</span>
+    <span class="kw">for</span> w,v <span class="kw">in</span> g[u]:
+      nd <span class="op">=</span> d<span class="op">+</span>w
+      <span class="kw">if</span> nd <span class="op">&lt;</span> dist.<span class="fn">get</span>(v,<span class="fn">float</span>(<span class="str">'inf'</span>)):
+        dist[v]<span class="op">=</span>nd; heapq.<span class="fn">heappush</span>(heap,(nd,v))
+  <span class="kw">return</span> <span class="fn">max</span>(dist.values()) <span class="kw">if</span> <span class="fn">len</span>(dist)<span class="op">==</span>n <span class="kw">else</span> <span class="op">-</span><span class="num">1</span></pre>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<div id="summary">
+  <h2 id="summary-title">Quiz complete!</h2>
+  <p id="summary-msg"></p>
+  <div class="summary-grid">
+    <div class="sum-card c-correct"><span class="val" id="sum-correct">0</span><span class="lbl">Correct</span></div>
+    <div class="sum-card c-wrong"><span class="val" id="sum-wrong">0</span><span class="lbl">Wrong</span></div>
+    <div class="sum-card c-total"><span class="val">20</span><span class="lbl">Total</span></div>
+  </div>
+  <button id="restart-btn">↺ Restart quiz</button>
+</div>
+
+<script>
+const TOTAL = 20;
+let correct = 0, answered = 0;
+const tabScores = { array:{c:0,w:0,t:5}, graph:{c:0,w:0,t:5}, dp:{c:0,w:0,t:5}, adv:{c:0,w:0,t:5} };
+const tabMap = {1:'array',2:'array',3:'array',4:'array',5:'array',6:'graph',7:'graph',8:'graph',9:'graph',10:'graph',11:'dp',12:'dp',13:'dp',14:'dp',15:'dp',16:'adv',17:'adv',18:'adv',19:'adv',20:'adv'};
+
+let qIndex = 0;
+document.querySelectorAll('.qcard').forEach(c => { qIndex++; c.dataset.qnum = qIndex; });
+
+function updateRing(){
+  const pct = answered===0?0:correct/TOTAL;
+  document.getElementById('ring-fill').style.strokeDashoffset = 113*(1-pct);
+}
+function updateHeader(){
+  document.getElementById('hdr-correct').textContent = correct;
+  document.getElementById('hdr-total').textContent = answered;
+  updateRing();
+}
+function updateTabScore(tab){
+  const s = tabScores[tab];
+  document.getElementById('score-'+tab).textContent = s.c+' / '+s.t;
+}
+function checkAllDone(){
+  if(answered===TOTAL){
+    document.getElementById('sum-correct').textContent = correct;
+    document.getElementById('sum-wrong').textContent = TOTAL-correct;
+    const pct = Math.round(correct/TOTAL*100);
+    document.getElementById('summary-title').textContent = pct>=80?'🎯 Excellent!':pct>=60?'💪 Good effort!':'📚 Keep practising!';
+    document.getElementById('summary-msg').textContent = correct+' out of '+TOTAL+' correct ('+pct+'%). '+(pct===100?'Perfect score!':'Review the solutions for the ones you missed.');
+    document.getElementById('summary').style.display='block';
+    document.getElementById('summary').scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+
+document.querySelectorAll('.qcard').forEach((card,idx) => {
+  const qNum = idx+1;
+  const tab = tabMap[qNum];
+  const correctAns = card.dataset.correct;
+  const buttons = card.querySelectorAll('.choice-btn');
+  const solution = card.querySelector('.solution');
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(card.classList.contains('answered-correct')||card.classList.contains('answered-wrong')) return;
+      const isCorrect = btn.dataset.val === correctAns;
+      buttons.forEach(b => {
+        b.disabled = true;
+        if(b.dataset.val===correctAns) b.classList.add(isCorrect?'correct':'reveal');
+      });
+      if(!isCorrect) btn.classList.add('wrong');
+      card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+      solution.classList.add('open');
+      answered++;
+      if(isCorrect){ correct++; tabScores[tab].c++; } else { tabScores[tab].w++; }
+      updateHeader(); updateTabScore(tab);
+      const allCards = document.querySelectorAll('#panel-'+tab+' .qcard');
+      const doneCards = document.querySelectorAll('#panel-'+tab+' .qcard.answered-correct, #panel-'+tab+' .qcard.answered-wrong');
+      if(allCards.length===doneCards.length) document.querySelector('.tab-btn[data-tab="'+tab+'"]').classList.add('done');
+      checkAllDone();
+    });
+  });
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('restart-btn').addEventListener('click',()=>{
+  correct=0; answered=0;
+  Object.keys(tabScores).forEach(k=>{tabScores[k].c=0;tabScores[k].w=0;});
+  document.querySelectorAll('.qcard').forEach(card=>{
+    card.className='qcard';
+    card.querySelectorAll('.choice-btn').forEach(b=>{b.disabled=false;b.className='choice-btn';});
+    card.querySelector('.solution').classList.remove('open');
+  });
+  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('done'));
+  Object.keys(tabScores).forEach(k=>document.getElementById('score-'+k).textContent='0 / '+tabScores[k].t);
+  document.getElementById('summary').style.display='none';
+  updateHeader();
+  document.querySelector('.tab-btn[data-tab="array"]').click();
+});
+</script>
+</body>
+</html>

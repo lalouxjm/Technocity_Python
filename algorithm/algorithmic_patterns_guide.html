@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithmic Patterns — Interview Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0c0e14; --bg2: #13151e; --bg3: #1a1d28;
+  --border: #252836; --text: #e2e0f0; --muted: #6b6d85;
+  --c1: #7c9ef8; --c2: #f87c8a; --c3: #4dd9ac; --c4: #f5a623;
+  --c5: #c07af5; --c-also: #60c5f8;
+}
+body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header {
+  padding: 2.5rem 3rem 2rem; border-bottom: 1px solid var(--border);
+  background: var(--bg2); display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+}
+header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; color: #fff; line-height: 1.1; }
+header p { color: var(--muted); font-size: 0.88rem; margin-top: 0.35rem; }
+
+.legend {
+  display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0;
+}
+.legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: var(--muted); }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.ld-both { background: var(--c-also); }
+.ld-pattern { background: var(--c5); }
+
+.tabs-wrapper {
+  display: flex; border-bottom: 1px solid var(--border); background: var(--bg2);
+  padding: 0 3rem; overflow-x: auto; gap: 0;
+}
+.tab-btn {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--muted); font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 500;
+  padding: 0.85rem 1.3rem; cursor: pointer; white-space: nowrap;
+  transition: color .15s, border-color .15s; display: flex; align-items: center; gap: 0.5rem;
+}
+.tab-btn .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: #fff; }
+.tab-btn[data-tab="array"].active  { border-color: var(--c1); color: var(--c1); }
+.tab-btn[data-tab="graph"].active  { border-color: var(--c2); color: var(--c2); }
+.tab-btn[data-tab="dp"].active     { border-color: var(--c3); color: var(--c3); }
+.tab-btn[data-tab="adv"].active    { border-color: var(--c4); color: var(--c4); }
+.dot-array { background: var(--c1); } .dot-graph { background: var(--c2); }
+.dot-dp    { background: var(--c3); } .dot-adv   { background: var(--c4); }
+
+.content { padding: 2rem 3rem 4rem; max-width: 1060px; }
+.tab-panel { display: none; } .tab-panel.active { display: block; }
+
+.panel-intro { margin-bottom: 2rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+.panel-intro h2 { font-size: 1.15rem; font-weight: 700; color: #fff; }
+.panel-intro p  { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+
+.cards { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.pcard {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+}
+.pcard-header {
+  padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+}
+.ph-left { flex: 1; }
+.ph-title { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.4rem; }
+.ph-title h3 { font-size: 1rem; font-weight: 700; color: #fff; }
+
+.tag {
+  display: inline-block; font-size: 0.68rem; font-weight: 600; padding: 2px 9px;
+  border-radius: 99px; white-space: nowrap;
+}
+.tag-also    { background: rgba(96,197,248,0.15); color: var(--c-also); border: 1px solid rgba(96,197,248,0.3); }
+.tag-pattern { background: rgba(192,122,245,0.12); color: var(--c5); border: 1px solid rgba(192,122,245,0.25); }
+.tag-rare    { background: rgba(245,166,35,0.12);  color: var(--c4);  border: 1px solid rgba(245,166,35,0.25); }
+
+.ph-desc { font-size: 0.88rem; color: #b0aeca; line-height: 1.6; }
+.ph-right { flex-shrink: 0; text-align: right; }
+.complexity-pill {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 99px;
+  padding: 3px 10px; color: var(--muted); margin-bottom: 0.35rem;
+}
+.cp-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.use-cases { font-size: 0.72rem; color: var(--muted); line-height: 1.5; max-width: 180px; text-align: right; }
+.use-cases span { color: #9090b8; }
+
+.pcard-body {
+  padding: 1.3rem 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem;
+}
+@media (max-width: 700px) {
+  .pcard-body { grid-template-columns: 1fr; }
+  .content { padding: 1.5rem; } .tabs-wrapper { padding: 0 1rem; } header { padding: 1.5rem; }
+}
+
+.block-label {
+  font-size: 0.68rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 0.55rem;
+}
+.block-text { font-size: 0.87rem; color: #b4b0cc; line-height: 1.7; }
+.block-text code {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+  background: var(--bg3); padding: 1px 5px; border-radius: 4px; color: #c8c4e8;
+}
+
+pre {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.9rem 1rem; overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; line-height: 1.75; color: #d0cce8;
+}
+.kw{color:#c084fc} .fn{color:#7cb8f8} .str{color:#86efac} .num{color:#fbbf24}
+.cm{color:#3e4060;font-style:italic} .op{color:#7a7d9c} .hi{color:#f9a8d4}
+.ok{color:#4dd9ac} .bad{color:#f87c8a}
+
+.signal-row {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.9rem 1.5rem;
+  border-top: 1px solid var(--border); background: #10121a;
+}
+.signal-label { font-size: 0.7rem; color: var(--muted); align-self: center; margin-right: 0.2rem; }
+.signal-tag {
+  font-size: 0.7rem; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 2px 9px; color: #9090b8;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Algorithmic Patterns<br>Interview Guide</h1>
+    <p>All patterns from the slides — with descriptions, complexity, and code examples</p>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot ld-both"></span> Pattern that is also an algorithm</div>
+    <div class="legend-item"><span class="legend-dot ld-pattern"></span> Pure pattern (strategic approach)</div>
+  </div>
+</header>
+
+<div class="tabs-wrapper">
+  <button class="tab-btn active" data-tab="array"><span class="dot dot-array"></span> Array &amp; String</button>
+  <button class="tab-btn" data-tab="graph"><span class="dot dot-graph"></span> Graph &amp; Tree</button>
+  <button class="tab-btn" data-tab="dp"><span class="dot dot-dp"></span> DP &amp; Greedy</button>
+  <button class="tab-btn" data-tab="adv"><span class="dot dot-adv"></span> Advanced</button>
+</div>
+
+<!-- ══ TAB 1: ARRAY & STRING ══ -->
+<div class="tab-panel active content" id="panel-array">
+  <div class="panel-intro">
+    <h2>Array &amp; String patterns</h2>
+    <p>The most common interview patterns — master these first.</p>
+  </div>
+  <div class="cards">
+
+    <!-- Two Pointers -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title">
+            <h3>Two Pointers</h3>
+            <span class="tag tag-pattern">pattern</span>
+          </div>
+          <p class="ph-desc">Two indices moving through a sequence — often from both ends — to avoid a nested loop. Reduces O(n²) brute-force to O(n).</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c1)"></span> O(n) time · O(1) space</div>
+          <div class="use-cases">Classic: <span>two sum (sorted), palindrome check, container with most water, reverse in-place</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">The array is <strong>sorted</strong>, or you're looking for a <strong>pair/triple</strong> that satisfies a condition. One pointer starts at the left, one at the right. Based on the result, move the one that can improve it.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — pair summing to target</p>
+          <pre><span class="kw">def</span> <span class="fn">has_pair_sum</span>(arr, target):
+  left, right <span class="op">=</span> <span class="num">0</span>, <span class="fn">len</span>(arr) <span class="op">-</span> <span class="num">1</span>
+  <span class="kw">while</span> left <span class="op">&lt;</span> right:
+    s <span class="op">=</span> arr[left] <span class="op">+</span> arr[right]
+    <span class="kw">if</span> s <span class="op">==</span> target:   <span class="kw">return</span> <span class="hi">True</span>
+    <span class="kw">elif</span> s <span class="op">&lt;</span> target: left <span class="op">+=</span> <span class="num">1</span>
+    <span class="kw">else</span>:             right <span class="op">-=</span> <span class="num">1</span>
+  <span class="kw">return</span> <span class="hi">False</span>
+
+<span class="cm"># arr must be sorted!</span>
+<span class="fn">has_pair_sum</span>([<span class="num">1</span>,<span class="num">3</span>,<span class="num">5</span>,<span class="num">7</span>,<span class="num">9</span>], <span class="num">10</span>)  <span class="cm"># True (3+7)</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">sorted array</span><span class="signal-tag">find pair/triple</span><span class="signal-tag">in-place reverse</span><span class="signal-tag">palindrome check</span>
+      </div>
+    </div>
+
+    <!-- Sliding Window -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Sliding Window</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">A window of fixed or variable size slides over an array or string. Subtract what leaves, add what enters — avoids recomputing from scratch each step.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c1)"></span> O(n) time · O(1) or O(k) space</div>
+          <div class="use-cases">Classic: <span>max sum of k elements, longest substring without repeating chars, min size subarray sum</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">The problem involves a <strong>contiguous subarray or substring</strong>. "Longest", "shortest", "maximum sum" of a sub-sequence are strong signals. Fixed-size: two pointers k apart. Variable-size: expand right, shrink left when condition breaks.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — max sum subarray of size k</p>
+          <pre><span class="kw">def</span> <span class="fn">max_sum_k</span>(nums, k):
+  window <span class="op">=</span> <span class="fn">sum</span>(nums[:k])
+  best <span class="op">=</span> window
+  <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(k, <span class="fn">len</span>(nums)):
+    window <span class="op">+=</span> nums[i] <span class="op">-</span> nums[i <span class="op">-</span> k]  <span class="cm"># slide</span>
+    best <span class="op">=</span> <span class="fn">max</span>(best, window)
+  <span class="kw">return</span> best
+
+<span class="fn">max_sum_k</span>([<span class="num">2</span>,<span class="num">1</span>,<span class="num">5</span>,<span class="num">1</span>,<span class="num">3</span>,<span class="num">2</span>], <span class="num">3</span>)  <span class="cm"># 9  (5+1+3)</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">contiguous subarray</span><span class="signal-tag">substring</span><span class="signal-tag">window of size k</span><span class="signal-tag">longest / shortest</span>
+      </div>
+    </div>
+
+    <!-- Binary Search -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Binary Search</h3><span class="tag tag-also">pattern + algorithm</span></div>
+          <p class="ph-desc">Repeatedly halve the search space on a sorted array or any monotonic condition. Each step eliminates half the candidates.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c-also)"></span> O(log n) time · O(1) space</div>
+          <div class="use-cases">Classic: <span>search in rotated array, first bad version, find peak element, search insert position</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">The input is <strong>sorted</strong>, or the problem has a <strong>monotonic condition</strong> (true/false boundary). Also use when brute force is O(n) and you suspect O(log n) is possible. Think: "can I eliminate half the options at each step?"</p>
+        </div>
+        <div>
+          <p class="block-label">Example — standard binary search</p>
+          <pre><span class="kw">def</span> <span class="fn">binary_search</span>(arr, target):
+  lo, hi <span class="op">=</span> <span class="num">0</span>, <span class="fn">len</span>(arr) <span class="op">-</span> <span class="num">1</span>
+  <span class="kw">while</span> lo <span class="op">&lt;=</span> hi:
+    mid <span class="op">=</span> (lo <span class="op">+</span> hi) <span class="op">//</span> <span class="num">2</span>
+    <span class="kw">if</span>   arr[mid] <span class="op">==</span> target: <span class="kw">return</span> mid
+    <span class="kw">elif</span> arr[mid] <span class="op">&lt;</span>  target: lo <span class="op">=</span> mid <span class="op">+</span> <span class="num">1</span>
+    <span class="kw">else</span>:                    hi <span class="op">=</span> mid <span class="op">-</span> <span class="num">1</span>
+  <span class="kw">return</span> <span class="op">-</span><span class="num">1</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">sorted array</span><span class="signal-tag">O(log n) hint</span><span class="signal-tag">monotonic condition</span><span class="signal-tag">"find first/last"</span>
+      </div>
+    </div>
+
+    <!-- Hash Map / Hash Set -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Hash Map / Hash Set</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">O(1) average lookups to count, deduplicate, or map relationships between elements. Trade memory for speed.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c1)"></span> O(n) time · O(n) space</div>
+          <div class="use-cases">Classic: <span>two sum, group anagrams, longest consecutive sequence, character frequency</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">You need to check membership, count occurrences, or find a complement — and you need it fast. If you're writing <code>x in list</code> inside a loop, replace that list with a set or dict. Almost every medium problem uses this.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — group anagrams</p>
+          <pre><span class="kw">from</span> collections <span class="kw">import</span> defaultdict
+
+<span class="kw">def</span> <span class="fn">group_anagrams</span>(words):
+  groups <span class="op">=</span> <span class="fn">defaultdict</span>(list)
+  <span class="kw">for</span> w <span class="kw">in</span> words:
+    key <span class="op">=</span> <span class="fn">tuple</span>(<span class="fn">sorted</span>(w))   <span class="cm"># canonical form</span>
+    groups[key].<span class="fn">append</span>(w)
+  <span class="kw">return</span> <span class="fn">list</span>(groups.values())
+
+<span class="fn">group_anagrams</span>([<span class="str">"eat"</span>,<span class="str">"tea"</span>,<span class="str">"tan"</span>,<span class="str">"ate"</span>,<span class="str">"nat"</span>])
+<span class="cm"># [["eat","tea","ate"], ["tan","nat"]]</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">count occurrences</span><span class="signal-tag">find complement</span><span class="signal-tag">group by key</span><span class="signal-tag">O(1) membership</span>
+      </div>
+    </div>
+
+    <!-- Prefix Sum -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Prefix Sum</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">Precompute cumulative sums once in O(n), then answer range sum queries in O(1) instead of recomputing each time.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c1)"></span> O(n) build · O(1) query</div>
+          <div class="use-cases">Classic: <span>range sum query, subarray sum equals k, product of array except self</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">Multiple queries about sums of subarrays. Build <code>prefix[i] = sum(arr[0..i])</code> once. Then <code>sum(l, r) = prefix[r] - prefix[l-1]</code> in O(1). Combine with a hash map to find subarrays with a given sum.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — subarray sum equals k</p>
+          <pre><span class="kw">def</span> <span class="fn">subarray_sum</span>(nums, k):
+  count <span class="op">=</span> <span class="num">0</span>
+  prefix <span class="op">=</span> <span class="num">0</span>
+  seen <span class="op">=</span> {<span class="num">0</span>: <span class="num">1</span>}   <span class="cm"># prefix_sum → frequency</span>
+  <span class="kw">for</span> n <span class="kw">in</span> nums:
+    prefix <span class="op">+=</span> n
+    count <span class="op">+=</span> seen.<span class="fn">get</span>(prefix <span class="op">-</span> k, <span class="num">0</span>)
+    seen[prefix] <span class="op">=</span> seen.<span class="fn">get</span>(prefix, <span class="num">0</span>) <span class="op">+</span> <span class="num">1</span>
+  <span class="kw">return</span> count
+
+<span class="fn">subarray_sum</span>([<span class="num">1</span>,<span class="num">1</span>,<span class="num">1</span>], <span class="num">2</span>)  <span class="cm"># 2</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">range sum queries</span><span class="signal-tag">subarray sum = k</span><span class="signal-tag">multiple queries on same array</span>
+      </div>
+    </div>
+
+    <!-- Stack -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Stack</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">LIFO structure to process elements in reverse order or track nested/contextual state. Essential for bracket problems, expression evaluation, and monotonic sequences.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c1)"></span> O(n) time · O(n) space</div>
+          <div class="use-cases">Classic: <span>valid parentheses, next greater element, min stack, evaluate expression</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">You need to "remember what came before" or process things in reverse. Nested structures (brackets, HTML), "next greater element", and undo-style problems all scream stack. Use <code>list.append()</code> / <code>list.pop()</code> — both O(1).</p>
+        </div>
+        <div>
+          <p class="block-label">Example — next greater element</p>
+          <pre><span class="kw">def</span> <span class="fn">next_greater</span>(nums):
+  res <span class="op">=</span> [<span class="op">-</span><span class="num">1</span>] <span class="op">*</span> <span class="fn">len</span>(nums)
+  stack <span class="op">=</span> []  <span class="cm"># stores indices</span>
+  <span class="kw">for</span> i, n <span class="kw">in</span> <span class="fn">enumerate</span>(nums):
+    <span class="kw">while</span> stack <span class="kw">and</span> nums[stack[<span class="op">-</span><span class="num">1</span>]] <span class="op">&lt;</span> n:
+      res[stack.<span class="fn">pop</span>()] <span class="op">=</span> n
+    stack.<span class="fn">append</span>(i)
+  <span class="kw">return</span> res
+
+<span class="fn">next_greater</span>([<span class="num">2</span>,<span class="num">1</span>,<span class="num">2</span>,<span class="num">4</span>,<span class="num">3</span>])
+<span class="cm"># [4, 2, 4, -1, -1]</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">nested structure</span><span class="signal-tag">matching brackets</span><span class="signal-tag">next greater/smaller</span><span class="signal-tag">reverse processing</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ TAB 2: GRAPH & TREE ══ -->
+<div class="tab-panel content" id="panel-graph">
+  <div class="panel-intro">
+    <h2>Graph &amp; Tree patterns</h2>
+    <p>Traversal strategies — the foundation of graph and tree problem solving.</p>
+  </div>
+  <div class="cards">
+
+    <!-- DFS -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Depth-First Search (DFS)</h3><span class="tag tag-also">pattern + algorithm</span></div>
+          <p class="ph-desc">Traverse as deep as possible before backtracking, using recursion or an explicit stack. Explores all paths fully before trying siblings.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c-also)"></span> O(V+E) time · O(V) space</div>
+          <div class="use-cases">Classic: <span>number of islands, path sum, connected components, clone graph</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">Explore all paths, detect cycles, find connected components, or solve maze/grid problems. Prefer DFS over BFS when you need to reach leaves or explore all possibilities. Use a <code>visited</code> set to avoid infinite loops.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — number of islands (grid DFS)</p>
+          <pre><span class="kw">def</span> <span class="fn">num_islands</span>(grid):
+  count <span class="op">=</span> <span class="num">0</span>
+  <span class="kw">def</span> <span class="fn">dfs</span>(r, c):
+    <span class="kw">if</span> r <span class="op">&lt;</span> <span class="num">0</span> <span class="kw">or</span> r <span class="op">&gt;=</span> <span class="fn">len</span>(grid) <span class="kw">or</span> \
+       c <span class="op">&lt;</span> <span class="num">0</span> <span class="kw">or</span> c <span class="op">&gt;=</span> <span class="fn">len</span>(grid[<span class="num">0</span>]) <span class="kw">or</span> grid[r][c] <span class="op">==</span> <span class="str">"0"</span>:
+      <span class="kw">return</span>
+    grid[r][c] <span class="op">=</span> <span class="str">"0"</span>   <span class="cm"># mark visited</span>
+    <span class="kw">for</span> dr, dc <span class="kw">in</span> [(<span class="num">1</span>,<span class="num">0</span>),(<span class="op">-</span><span class="num">1</span>,<span class="num">0</span>),(<span class="num">0</span>,<span class="num">1</span>),(<span class="num">0</span>,<span class="op">-</span><span class="num">1</span>)]:
+      <span class="fn">dfs</span>(r<span class="op">+</span>dr, c<span class="op">+</span>dc)
+  <span class="kw">for</span> r <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(grid)):
+    <span class="kw">for</span> c <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(grid[<span class="num">0</span>])):
+      <span class="kw">if</span> grid[r][c] <span class="op">==</span> <span class="str">"1"</span>: <span class="fn">dfs</span>(r,c); count<span class="op">+=</span><span class="num">1</span>
+  <span class="kw">return</span> count</pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">explore all paths</span><span class="signal-tag">connected components</span><span class="signal-tag">grid traversal</span><span class="signal-tag">detect cycle</span>
+      </div>
+    </div>
+
+    <!-- BFS -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Breadth-First Search (BFS)</h3><span class="tag tag-also">pattern + algorithm</span></div>
+          <p class="ph-desc">Traverse level by level using a queue. Guarantees the shortest path in unweighted graphs because it explores all nodes at distance d before d+1.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c-also)"></span> O(V+E) time · O(V) space</div>
+          <div class="use-cases">Classic: <span>shortest path, level-order traversal, word ladder, rotting oranges</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">You need the <strong>shortest path</strong> or <strong>minimum steps</strong> in an unweighted graph. BFS processes nodes level by level — the first time you reach the target, you have the shortest path. Always use a <code>deque</code>, never <code>list.pop(0)</code>.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — shortest path in grid</p>
+          <pre><span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="kw">def</span> <span class="fn">shortest_path</span>(grid):
+  rows, cols <span class="op">=</span> <span class="fn">len</span>(grid), <span class="fn">len</span>(grid[<span class="num">0</span>])
+  queue <span class="op">=</span> <span class="fn">deque</span>([(<span class="num">0</span>, <span class="num">0</span>, <span class="num">1</span>)])   <span class="cm"># r, c, steps</span>
+  visited <span class="op">=</span> {(<span class="num">0</span>, <span class="num">0</span>)}
+  <span class="kw">while</span> queue:
+    r, c, steps <span class="op">=</span> queue.<span class="fn">popleft</span>()
+    <span class="kw">if</span> r <span class="op">==</span> rows<span class="op">-</span><span class="num">1</span> <span class="kw">and</span> c <span class="op">==</span> cols<span class="op">-</span><span class="num">1</span>: <span class="kw">return</span> steps
+    <span class="kw">for</span> dr, dc <span class="kw">in</span> [(<span class="num">1</span>,<span class="num">0</span>),(<span class="op">-</span><span class="num">1</span>,<span class="num">0</span>),(<span class="num">0</span>,<span class="num">1</span>),(<span class="num">0</span>,<span class="op">-</span><span class="num">1</span>)]:
+      nr, nc <span class="op">=</span> r<span class="op">+</span>dr, c<span class="op">+</span>dc
+      <span class="kw">if</span> <span class="num">0</span><span class="op">&lt;=</span>nr<span class="op">&lt;</span>rows <span class="kw">and</span> <span class="num">0</span><span class="op">&lt;=</span>nc<span class="op">&lt;</span>cols <span class="kw">and</span> (nr,nc) <span class="kw">not in</span> visited:
+        visited.<span class="fn">add</span>((nr,nc)); queue.<span class="fn">append</span>((nr,nc,steps<span class="op">+</span><span class="num">1</span>))</pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">shortest path</span><span class="signal-tag">min steps</span><span class="signal-tag">level by level</span><span class="signal-tag">unweighted graph</span>
+      </div>
+    </div>
+
+    <!-- Tree Traversals -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Tree Traversals</h3><span class="tag tag-also">pattern + algorithm</span></div>
+          <p class="ph-desc">Inorder, preorder, postorder — each reveals different structural properties of a binary tree. Inorder on BST gives sorted output.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c-also)"></span> O(n) time · O(h) space</div>
+          <div class="use-cases">Classic: <span>validate BST, lowest common ancestor, serialize/deserialize tree, diameter</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">The three orders</p>
+          <p class="block-text">
+            <strong>Inorder</strong> (L → Node → R): gives sorted values in a BST.<br>
+            <strong>Preorder</strong> (Node → L → R): serialize a tree, copy structure.<br>
+            <strong>Postorder</strong> (L → R → Node): process children before parent — good for deletion, computing subtree results.
+          </p>
+        </div>
+        <div>
+          <p class="block-label">Example — inorder (recursive)</p>
+          <pre><span class="kw">def</span> <span class="fn">inorder</span>(node, result<span class="op">=</span>[]):
+  <span class="kw">if not</span> node: <span class="kw">return</span>
+  <span class="fn">inorder</span>(node.left, result)
+  result.<span class="fn">append</span>(node.val)
+  <span class="fn">inorder</span>(node.right, result)
+  <span class="kw">return</span> result
+
+<span class="cm"># Postorder — process subtrees first</span>
+<span class="kw">def</span> <span class="fn">height</span>(node):
+  <span class="kw">if not</span> node: <span class="kw">return</span> <span class="num">0</span>
+  <span class="kw">return</span> <span class="num">1</span> <span class="op">+</span> <span class="fn">max</span>(<span class="fn">height</span>(node.left),
+                  <span class="fn">height</span>(node.right))</pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">binary tree</span><span class="signal-tag">BST property</span><span class="signal-tag">subtree computation</span><span class="signal-tag">serialize tree</span>
+      </div>
+    </div>
+
+    <!-- Recursion & Backtracking -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Recursion &amp; Backtracking</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">Explore all possibilities by building candidates incrementally and abandoning (backtracking) paths that fail a constraint early.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c5)"></span> O(n!) worst · varies</div>
+          <div class="use-cases">Classic: <span>permutations, subsets, combination sum, N-Queens, word search</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">Generate <strong>all</strong> combinations, permutations, or subsets. The template: choose → recurse → unchoose. Prune early when a partial candidate already violates constraints. This makes it vastly faster than brute force in practice.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — all subsets</p>
+          <pre><span class="kw">def</span> <span class="fn">subsets</span>(nums):
+  result <span class="op">=</span> []
+  <span class="kw">def</span> <span class="fn">backtrack</span>(start, current):
+    result.<span class="fn">append</span>(current[:])  <span class="cm"># snapshot</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(start, <span class="fn">len</span>(nums)):
+      current.<span class="fn">append</span>(nums[i])    <span class="cm"># choose</span>
+      <span class="fn">backtrack</span>(i <span class="op">+</span> <span class="num">1</span>, current)  <span class="cm"># recurse</span>
+      current.<span class="fn">pop</span>()              <span class="cm"># unchoose</span>
+  <span class="fn">backtrack</span>(<span class="num">0</span>, [])
+  <span class="kw">return</span> result
+
+<span class="fn">subsets</span>([<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>])
+<span class="cm"># [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">generate all …</span><span class="signal-tag">permutations</span><span class="signal-tag">combinations</span><span class="signal-tag">constraint satisfaction</span>
+      </div>
+    </div>
+
+    <!-- Fast & Slow Pointers -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Fast &amp; Slow Pointers</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">Two pointers moving at different speeds through a linked list. The fast pointer moves 2 steps, the slow 1. When fast hits the end, slow is at the middle.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c5)"></span> O(n) time · O(1) space</div>
+          <div class="use-cases">Classic: <span>detect cycle, find middle node, find cycle entry point, happy number</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">Linked list problems where you can't index directly. Cycle detection: if there's a cycle, fast and slow will eventually meet. Finding the middle: when fast reaches the end, slow is exactly at the middle.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — detect cycle in linked list</p>
+          <pre><span class="kw">def</span> <span class="fn">has_cycle</span>(head):
+  slow, fast <span class="op">=</span> head, head
+  <span class="kw">while</span> fast <span class="kw">and</span> fast.next:
+    slow <span class="op">=</span> slow.next
+    fast <span class="op">=</span> fast.next.next
+    <span class="kw">if</span> slow <span class="op">is</span> fast:
+      <span class="kw">return</span> <span class="hi">True</span>    <span class="cm"># they met → cycle!</span>
+  <span class="kw">return</span> <span class="hi">False</span>
+
+<span class="cm"># Find middle: when fast ends, slow = middle</span>
+<span class="kw">def</span> <span class="fn">find_middle</span>(head):
+  slow, fast <span class="op">=</span> head, head
+  <span class="kw">while</span> fast <span class="kw">and</span> fast.next:
+    slow <span class="op">=</span> slow.next; fast <span class="op">=</span> fast.next.next
+  <span class="kw">return</span> slow</pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">linked list</span><span class="signal-tag">detect cycle</span><span class="signal-tag">find middle</span><span class="signal-tag">O(1) space constraint</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ TAB 3: DP & GREEDY ══ -->
+<div class="tab-panel content" id="panel-dp">
+  <div class="panel-intro">
+    <h2>Dynamic Programming &amp; Greedy</h2>
+    <p>Optimization patterns — break problems into subproblems or make locally optimal choices.</p>
+  </div>
+  <div class="cards">
+
+    <!-- Dynamic Programming -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Dynamic Programming</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">Break a problem into overlapping subproblems; cache results to avoid redundant computation. Two approaches: top-down (memoization) and bottom-up (tabulation).</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c3)"></span> O(n) or O(n²) typical</div>
+          <div class="use-cases">Classic: <span>climbing stairs, 0/1 knapsack, longest common subsequence, coin change</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">The problem asks for a <strong>count, min, or max</strong> over all possibilities, and subproblems overlap. Check: "Can I define this answer in terms of smaller versions of the same problem?" If yes — DP. If no overlapping subproblems — try greedy or backtracking.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — coin change (min coins)</p>
+          <pre><span class="kw">def</span> <span class="fn">coin_change</span>(coins, amount):
+  dp <span class="op">=</span> [<span class="fn">float</span>(<span class="str">"inf"</span>)] <span class="op">*</span> (amount <span class="op">+</span> <span class="num">1</span>)
+  dp[<span class="num">0</span>] <span class="op">=</span> <span class="num">0</span>         <span class="cm"># base case</span>
+  <span class="kw">for</span> a <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, amount <span class="op">+</span> <span class="num">1</span>):
+    <span class="kw">for</span> c <span class="kw">in</span> coins:
+      <span class="kw">if</span> c <span class="op">&lt;=</span> a:
+        dp[a] <span class="op">=</span> <span class="fn">min</span>(dp[a], dp[a <span class="op">-</span> c] <span class="op">+</span> <span class="num">1</span>)
+  <span class="kw">return</span> dp[amount] <span class="kw">if</span> dp[amount] <span class="op">!=</span> <span class="fn">float</span>(<span class="str">"inf"</span>) <span class="kw">else</span> <span class="op">-</span><span class="num">1</span>
+
+<span class="fn">coin_change</span>([<span class="num">1</span>,<span class="num">5</span>,<span class="num">6</span>,<span class="num">9</span>], <span class="num">11</span>)  <span class="cm"># 2  (5+6)</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">count/min/max over all ways</span><span class="signal-tag">overlapping subproblems</span><span class="signal-tag">"how many ways"</span>
+      </div>
+    </div>
+
+    <!-- Greedy -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Greedy</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">Make the locally optimal choice at each step — works when local optima lead to a global optimum. No backtracking needed.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c3)"></span> O(n log n) typical (sort first)</div>
+          <div class="use-cases">Classic: <span>jump game, gas station, activity selection, assign cookies</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">Problems where a locally optimal choice never needs to be reconsidered. Usually involves sorting first. Greedy is faster than DP but only valid when the "greedy choice property" holds — you must prove or intuit it for each problem.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — jump game (can you reach end?)</p>
+          <pre><span class="kw">def</span> <span class="fn">can_jump</span>(nums):
+  max_reach <span class="op">=</span> <span class="num">0</span>
+  <span class="kw">for</span> i, n <span class="kw">in</span> <span class="fn">enumerate</span>(nums):
+    <span class="kw">if</span> i <span class="op">&gt;</span> max_reach:
+      <span class="kw">return</span> <span class="hi">False</span>    <span class="cm"># stuck — can't get here</span>
+    max_reach <span class="op">=</span> <span class="fn">max</span>(max_reach, i <span class="op">+</span> n)
+  <span class="kw">return</span> <span class="hi">True</span>
+
+<span class="cm"># Greedily track the farthest we can reach</span>
+<span class="fn">can_jump</span>([<span class="num">2</span>,<span class="num">3</span>,<span class="num">1</span>,<span class="num">1</span>,<span class="num">4</span>])  <span class="cm"># True</span>
+<span class="fn">can_jump</span>([<span class="num">3</span>,<span class="num">2</span>,<span class="num">1</span>,<span class="num">0</span>,<span class="num">4</span>])  <span class="cm"># False</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">locally optimal = globally optimal</span><span class="signal-tag">scheduling</span><span class="signal-tag">interval problems</span>
+      </div>
+    </div>
+
+    <!-- Merge Intervals -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Merge Intervals</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">Sort intervals by start time, then merge overlapping ones in a single linear pass. A specific and very common interview pattern.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c3)"></span> O(n log n) sort + O(n) merge</div>
+          <div class="use-cases">Classic: <span>merge intervals, insert interval, meeting rooms I &amp; II, non-overlapping intervals</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">Any problem involving overlapping ranges, scheduling, or time intervals. Key insight: after sorting by start, two intervals overlap if <code>curr.start &lt;= prev.end</code>. Merge by extending the end to <code>max(prev.end, curr.end)</code>.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — merge overlapping intervals</p>
+          <pre><span class="kw">def</span> <span class="fn">merge</span>(intervals):
+  intervals.<span class="fn">sort</span>(key<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="num">0</span>])
+  merged <span class="op">=</span> [intervals[<span class="num">0</span>]]
+  <span class="kw">for</span> start, end <span class="kw">in</span> intervals[<span class="num">1</span>:]:
+    <span class="kw">if</span> start <span class="op">&lt;=</span> merged[<span class="op">-</span><span class="num">1</span>][<span class="num">1</span>]:
+      merged[<span class="op">-</span><span class="num">1</span>][<span class="num">1</span>] <span class="op">=</span> <span class="fn">max</span>(merged[<span class="op">-</span><span class="num">1</span>][<span class="num">1</span>], end)
+    <span class="kw">else</span>:
+      merged.<span class="fn">append</span>([start, end])
+  <span class="kw">return</span> merged
+
+<span class="fn">merge</span>([[<span class="num">1</span>,<span class="num">3</span>],[<span class="num">2</span>,<span class="num">6</span>],[<span class="num">8</span>,<span class="num">10</span>],[<span class="num">15</span>,<span class="num">18</span>]])
+<span class="cm"># [[1,6],[8,10],[15,18]]</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">time intervals</span><span class="signal-tag">scheduling</span><span class="signal-tag">overlapping ranges</span><span class="signal-tag">meeting rooms</span>
+      </div>
+    </div>
+
+    <!-- Top K Elements / Heap -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Heap / Top K Elements</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">Maintain fast access to the current minimum or maximum of a dynamic set. A min-heap of size K efficiently tracks the K largest elements — without full sorting.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c3)"></span> O(n log k) time · O(k) space</div>
+          <div class="use-cases">Classic: <span>K largest elements, merge K sorted lists, median from stream, task scheduler</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">The problem mentions "top K", "K largest/smallest", or "median". Python's <code>heapq</code> is a min-heap. To simulate a max-heap, negate values. Pushing onto a heap of size K and popping the min gives you the K largest in O(n log k).</p>
+        </div>
+        <div>
+          <p class="block-label">Example — K largest elements</p>
+          <pre><span class="kw">import</span> heapq
+
+<span class="kw">def</span> <span class="fn">k_largest</span>(nums, k):
+  heap <span class="op">=</span> []
+  <span class="kw">for</span> n <span class="kw">in</span> nums:
+    heapq.<span class="fn">heappush</span>(heap, n)
+    <span class="kw">if</span> <span class="fn">len</span>(heap) <span class="op">&gt;</span> k:
+      heapq.<span class="fn">heappop</span>(heap)  <span class="cm"># remove smallest</span>
+  <span class="kw">return</span> heap   <span class="cm"># contains k largest</span>
+
+<span class="fn">k_largest</span>([<span class="num">3</span>,<span class="num">1</span>,<span class="num">5</span>,<span class="num">12</span>,<span class="num">2</span>,<span class="num">11</span>], <span class="num">3</span>)
+<span class="cm"># [5, 11, 12] (heap, unsorted)</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">top K</span><span class="signal-tag">K largest/smallest</span><span class="signal-tag">median from stream</span><span class="signal-tag">priority queue</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ TAB 4: ADVANCED ══ -->
+<div class="tab-panel content" id="panel-adv">
+  <div class="panel-intro">
+    <h2>Advanced patterns</h2>
+    <p>Less common in standard interviews — essential for senior roles and competitive programming.</p>
+  </div>
+  <div class="cards">
+
+    <!-- Union-Find -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Union-Find (DSU)</h3><span class="tag tag-also">pattern + algorithm</span></div>
+          <p class="ph-desc">Tracks a partition of elements into disjoint sets with near-O(1) union and find. Uses path compression and union by rank.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c-also)"></span> O(α(n)) ≈ O(1) amortized</div>
+          <div class="use-cases">Classic: <span>number of connected components, redundant connection, accounts merge</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">Dynamically connecting and grouping elements. "Are A and B in the same group?" or "Connect A and B". Alternative to BFS/DFS for connected components — often cleaner. Path compression makes repeated operations nearly O(1).</p>
+        </div>
+        <div>
+          <p class="block-label">Example — Union-Find template</p>
+          <pre><span class="kw">class</span> <span class="fn">UnionFind</span>:
+  <span class="kw">def</span> <span class="fn">__init__</span>(self, n):
+    self.parent <span class="op">=</span> <span class="fn">list</span>(<span class="fn">range</span>(n))
+    self.rank <span class="op">=</span> [<span class="num">0</span>] <span class="op">*</span> n
+
+  <span class="kw">def</span> <span class="fn">find</span>(self, x):
+    <span class="kw">if</span> self.parent[x] <span class="op">!=</span> x:
+      self.parent[x] <span class="op">=</span> self.<span class="fn">find</span>(self.parent[x])
+    <span class="kw">return</span> self.parent[x]   <span class="cm"># path compression</span>
+
+  <span class="kw">def</span> <span class="fn">union</span>(self, x, y):
+    px, py <span class="op">=</span> self.<span class="fn">find</span>(x), self.<span class="fn">find</span>(y)
+    <span class="kw">if</span> self.rank[px] <span class="op">&lt;</span> self.rank[py]: px, py <span class="op">=</span> py, px
+    self.parent[py] <span class="op">=</span> px</pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">dynamic connectivity</span><span class="signal-tag">connected components</span><span class="signal-tag">"same group?"</span>
+      </div>
+    </div>
+
+    <!-- Monotonic Stack -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Monotonic Stack</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">A stack kept strictly increasing or decreasing to efficiently find the next/previous greater or smaller element in O(n) instead of O(n²).</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c4)"></span> O(n) time · O(n) space</div>
+          <div class="use-cases">Classic: <span>largest rectangle in histogram, daily temperatures, trapping rain water</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">You need "next greater element", "previous smaller element", or area/volume calculations involving bars (histogram, rain water). Maintain a stack in monotonic order — when a new element breaks the order, pop and process.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — daily temperatures</p>
+          <pre><span class="kw">def</span> <span class="fn">daily_temps</span>(temps):
+  ans <span class="op">=</span> [<span class="num">0</span>] <span class="op">*</span> <span class="fn">len</span>(temps)
+  stack <span class="op">=</span> []  <span class="cm"># indices, decreasing temps</span>
+  <span class="kw">for</span> i, t <span class="kw">in</span> <span class="fn">enumerate</span>(temps):
+    <span class="kw">while</span> stack <span class="kw">and</span> temps[stack[<span class="op">-</span><span class="num">1</span>]] <span class="op">&lt;</span> t:
+      j <span class="op">=</span> stack.<span class="fn">pop</span>()
+      ans[j] <span class="op">=</span> i <span class="op">-</span> j    <span class="cm"># days to wait</span>
+    stack.<span class="fn">append</span>(i)
+  <span class="kw">return</span> ans
+
+<span class="fn">daily_temps</span>([<span class="num">73</span>,<span class="num">74</span>,<span class="num">75</span>,<span class="num">71</span>,<span class="num">69</span>,<span class="num">72</span>,<span class="num">76</span>,<span class="num">73</span>])
+<span class="cm"># [1, 1, 4, 2, 1, 1, 0, 0]</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">next greater element</span><span class="signal-tag">histogram</span><span class="signal-tag">trapping water</span><span class="signal-tag">span problems</span>
+      </div>
+    </div>
+
+    <!-- Trie -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Trie (Prefix Tree)</h3><span class="tag tag-pattern">pattern</span></div>
+          <p class="ph-desc">Tree where each node is a character — enables fast prefix-based search and insertion. Each path from root to leaf spells a word.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c4)"></span> O(L) insert/search (L = word length)</div>
+          <div class="use-cases">Classic: <span>implement trie, word search II, autocomplete, replace words</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">Problems involving <strong>prefix lookups</strong>, autocomplete, or searching a set of words. More efficient than a hash set when you need prefix queries (e.g., "does any word start with 'app'?").</p>
+        </div>
+        <div>
+          <p class="block-label">Example — Trie insert &amp; search</p>
+          <pre><span class="kw">class</span> <span class="fn">TrieNode</span>:
+  <span class="kw">def</span> <span class="fn">__init__</span>(self):
+    self.children <span class="op">=</span> {}; self.end <span class="op">=</span> <span class="hi">False</span>
+
+<span class="kw">class</span> <span class="fn">Trie</span>:
+  <span class="kw">def</span> <span class="fn">__init__</span>(self): self.root <span class="op">=</span> <span class="fn">TrieNode</span>()
+
+  <span class="kw">def</span> <span class="fn">insert</span>(self, word):
+    node <span class="op">=</span> self.root
+    <span class="kw">for</span> ch <span class="kw">in</span> word:
+      node <span class="op">=</span> node.children.<span class="fn">setdefault</span>(ch, <span class="fn">TrieNode</span>())
+    node.end <span class="op">=</span> <span class="hi">True</span>
+
+  <span class="kw">def</span> <span class="fn">starts_with</span>(self, prefix):
+    node <span class="op">=</span> self.root
+    <span class="kw">for</span> ch <span class="kw">in</span> prefix:
+      <span class="kw">if</span> ch <span class="kw">not in</span> node.children: <span class="kw">return</span> <span class="hi">False</span>
+      node <span class="op">=</span> node.children[ch]
+    <span class="kw">return</span> <span class="hi">True</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">prefix search</span><span class="signal-tag">autocomplete</span><span class="signal-tag">word dictionary</span><span class="signal-tag">starts with</span>
+      </div>
+    </div>
+
+    <!-- Topological Sort -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Topological Sort</h3><span class="tag tag-also">pattern + algorithm</span><span class="tag tag-rare" style="margin-left:4px">less common</span></div>
+          <p class="ph-desc">Produce a linear ordering of a DAG (Directed Acyclic Graph) that respects all directed dependencies. Detect circular dependencies.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c-also)"></span> O(V+E) time</div>
+          <div class="use-cases">Classic: <span>course schedule, build order, alien dictionary, task dependencies</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">"Can you complete all tasks given these dependencies?" = topological sort. Build an in-degree map, start with 0-in-degree nodes, and process via BFS (Kahn's algorithm). If not all nodes are processed, a cycle exists.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — course schedule (Kahn's algorithm)</p>
+          <pre><span class="kw">from</span> collections <span class="kw">import</span> deque, defaultdict
+
+<span class="kw">def</span> <span class="fn">can_finish</span>(n, prerequisites):
+  indegree <span class="op">=</span> [<span class="num">0</span>] <span class="op">*</span> n
+  graph <span class="op">=</span> <span class="fn">defaultdict</span>(list)
+  <span class="kw">for</span> a, b <span class="kw">in</span> prerequisites:
+    graph[b].<span class="fn">append</span>(a); indegree[a] <span class="op">+=</span> <span class="num">1</span>
+  queue <span class="op">=</span> <span class="fn">deque</span>(i <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n) <span class="kw">if</span> indegree[i] <span class="op">==</span> <span class="num">0</span>)
+  done <span class="op">=</span> <span class="num">0</span>
+  <span class="kw">while</span> queue:
+    node <span class="op">=</span> queue.<span class="fn">popleft</span>(); done <span class="op">+=</span> <span class="num">1</span>
+    <span class="kw">for</span> nei <span class="kw">in</span> graph[node]:
+      indegree[nei] <span class="op">-=</span> <span class="num">1</span>
+      <span class="kw">if</span> indegree[nei] <span class="op">==</span> <span class="num">0</span>: queue.<span class="fn">append</span>(nei)
+  <span class="kw">return</span> done <span class="op">==</span> n</pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">dependencies</span><span class="signal-tag">DAG ordering</span><span class="signal-tag">course schedule</span><span class="signal-tag">detect cycle in DAG</span>
+      </div>
+    </div>
+
+    <!-- Dijkstra -->
+    <div class="pcard">
+      <div class="pcard-header">
+        <div class="ph-left">
+          <div class="ph-title"><h3>Dijkstra's Algorithm</h3><span class="tag tag-also">pattern + algorithm</span><span class="tag tag-rare" style="margin-left:4px">less common</span></div>
+          <p class="ph-desc">Shortest path from a source in a <strong>weighted</strong> graph using a priority queue. Greedy: always expand the currently cheapest node.</p>
+        </div>
+        <div class="ph-right">
+          <div class="complexity-pill"><span class="cp-dot" style="background:var(--c-also)"></span> O((V+E) log V)</div>
+          <div class="use-cases">Classic: <span>network delay time, cheapest flights within k stops, path with min effort</span></div>
+        </div>
+      </div>
+      <div class="pcard-body">
+        <div>
+          <p class="block-label">When to use it</p>
+          <p class="block-text">Shortest path in a <strong>weighted graph with non-negative edges</strong>. BFS finds shortest path in unweighted graphs; Dijkstra handles weights. Uses a min-heap (priority queue) to always process the nearest unvisited node first.</p>
+        </div>
+        <div>
+          <p class="block-label">Example — network delay time</p>
+          <pre><span class="kw">import</span> heapq
+<span class="kw">from</span> collections <span class="kw">import</span> defaultdict
+
+<span class="kw">def</span> <span class="fn">network_delay</span>(times, n, src):
+  graph <span class="op">=</span> <span class="fn">defaultdict</span>(list)
+  <span class="kw">for</span> u, v, w <span class="kw">in</span> times: graph[u].<span class="fn">append</span>((w, v))
+  dist <span class="op">=</span> {src: <span class="num">0</span>}
+  heap <span class="op">=</span> [(<span class="num">0</span>, src)]
+  <span class="kw">while</span> heap:
+    d, u <span class="op">=</span> heapq.<span class="fn">heappop</span>(heap)
+    <span class="kw">if</span> d <span class="op">&gt;</span> dist.<span class="fn">get</span>(u, <span class="fn">float</span>(<span class="str">"inf"</span>)): <span class="kw">continue</span>
+    <span class="kw">for</span> w, v <span class="kw">in</span> graph[u]:
+      nd <span class="op">=</span> d <span class="op">+</span> w
+      <span class="kw">if</span> nd <span class="op">&lt;</span> dist.<span class="fn">get</span>(v, <span class="fn">float</span>(<span class="str">"inf"</span>)):
+        dist[v] <span class="op">=</span> nd; heapq.<span class="fn">heappush</span>(heap, (nd, v))
+  <span class="kw">return</span> <span class="fn">max</span>(dist.values()) <span class="kw">if</span> <span class="fn">len</span>(dist) <span class="op">==</span> n <span class="kw">else</span> <span class="op">-</span><span class="num">1</span></pre>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="signal-label">Spot it when:</span>
+        <span class="signal-tag">weighted graph</span><span class="signal-tag">shortest path</span><span class="signal-tag">non-negative weights</span><span class="signal-tag">min cost</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
