@@ -28,13 +28,7 @@ class LegendaryDragon(Dragon, LoggableMixin):
         else:
             self._title = value
 
-    def mission_duration_days(self) -> int:
-        return 21
-
-    def describe_abilities(self) -> str:
-        return super().describe_abilities()
-
     def send_on_mission(self):
         super().send_on_mission()
-        super().log_mission()
-        self.print_log()
+        self.log_mission()
+

@@ -1,7 +1,7 @@
 import random
 from abc import ABC, abstractmethod
 
-import my_func
+import my_func as mf
 
 
 class Creature(ABC):
@@ -9,13 +9,14 @@ class Creature(ABC):
     class that represents a creature
     """
     _total_creatures = 0
-    __VALID_SPECIES = ["Dragon", "Legendary Dragon", "Phoenix", "Griffin", "Unicorn", "Basilisk"]
+    __VALID_SPECIES = ["Dragon", "Phoenix", "Griffin", "Unicorn", "Basilisk"]
 
     """
     ==Constructor==
     """
-    def __init__(self, name: str, species: str, origin: str, power_level: int | float) -> None:
+    def __init__(self, name: str, species: str, origin: str, power_level: int | float, **kwargs) -> None:
 
+        super().__init__(**kwargs)
         if origin == "":
             raise ValueError("You must provide a origin")
 
@@ -38,8 +39,8 @@ class Creature(ABC):
     #Display Name, Specie, Origin and status of the creature when using print()
     def __str__(self):
         status = "In Stable" if self._in_stable else "On Mission"
-        return f"{my_func.blue(self._name)} - LvL {self._power_level} - {self._species} - (origin: {self.__origin!r}) [{my_func.green(status)}]" if self._in_stable \
-            else f"{my_func.blue(self._name)} - LvL {self._power_level} - {self._species} - (origin: {self.__origin!r}) [{my_func.red(status)}]"
+        return f"{mf.blue(self._name)} - LvL {self._power_level} {mf.yellow("<",self._species,">")} (origin: {self.__origin!r}) [{mf.green(status)}]" if self._in_stable \
+            else f"{mf.blue(self._name)} - LvL {self._power_level} {mf.yellow("<",self._species,">")} (origin: {self.__origin!r}) [{mf.red(status)}]"
 
     def __repr__(self):
         return f"Creature(name={self._name!r},species={self._species!r},origin={self.__origin!r},power_level={self._power_level})"
