@@ -1,6 +1,5 @@
 import random
 from abc import ABC, abstractmethod
-
 import my_func as mf
 
 
@@ -31,19 +30,18 @@ class Creature(ABC):
         self.power_level = power_level
 
         #Privates
-        self.__origin = origin
+        self._origin = origin
         self._in_stable = True
 
         Creature._total_creatures += 1
 
     #Display Name, Specie, Origin and status of the creature when using print()
     def __str__(self):
-        status = "In Stable" if self._in_stable else "On Mission"
-        return f"{mf.blue(self._name)} - LvL {self._power_level} {mf.yellow("<",self._species,">")} (origin: {self.__origin!r}) [{mf.green(status)}]" if self._in_stable \
-            else f"{mf.blue(self._name)} - LvL {self._power_level} {mf.yellow("<",self._species,">")} (origin: {self.__origin!r}) [{mf.red(status)}]"
+        status = mf.green("In Stable") if self._in_stable else mf.red("On Mission")
+        return f"{mf.blue(self._name)} - LvL {self._power_level} {mf.yellow("<", self._species, ">")} (origin: {self._origin!r}) [{status}]"
 
     def __repr__(self):
-        return f"Creature(name={self._name!r},species={self._species!r},origin={self.__origin!r},power_level={self._power_level})"
+        return f"Creature(name={self._name!r},species={self._species!r},origin={self._origin!r},power_level={self._power_level})"
 
     """
     ==Get - Set==
@@ -53,8 +51,7 @@ class Creature(ABC):
         return self._name
     @name.setter
     def name(self, name: str) -> None:
-        is_a_str = isinstance(name, str)
-        if not is_a_str:
+        if not isinstance(name, str):
             raise ValueError("Invalid name.\rName must be a string")
         else:
             if name == "":
@@ -65,11 +62,9 @@ class Creature(ABC):
     @property
     def species(self) -> str:
         return self._species
-
     @species.setter
     def species(self, species: str) -> None:
-        is_a_str = isinstance(species, str)
-        if not is_a_str:
+        if not isinstance(species, str):
             raise ValueError("Invalid species.\rSpecies must be a string")
         else:
             status = type(self).is_valid_species(species)
@@ -80,23 +75,14 @@ class Creature(ABC):
 
     @property
     def origin(self) -> str:
-        return self.__origin
-    """
-    @origin.setter
-    def origin(self, origin: str) -> None:
-        if origin == "":
-            raise ValueError("You must provide a origin")
-        else:
-            self.__origin = origin
-    """
+        return self._origin
 
     @property
     def power_level(self) -> int | float:
         return self._power_level
     @power_level.setter
     def power_level(self, power_level: int | float) -> None:
-        is_a_int = isinstance(power_level, (int, float))
-        if not is_a_int:
+        if not isinstance(power_level, (int, float)):
             raise ValueError("Invalid power level.\rPower level must be an int or a float.")
         else:
             status = type(self).is_valid_power_level(power_level)
@@ -117,12 +103,23 @@ class Creature(ABC):
     def send_to_field(self) -> None:
         print(self)
         print(self.describe_abilities())
-        print(f"{self.name} will be gone on mission for {self.mission_duration_days()} days.")
+        print(f"{self.name} will be gone on mission "
+              f"for {self.mission_duration_days()} days.")
         self.send_on_mission()
 
     def return_from_mission(self) -> None:
-        print(f"{self.name} came back from his mission after {self.mission_duration_days()} days and earned {random.randint(25,75)} Exp.")
+        print(f"{self.name} came back from his mission "
+              f"after {self.mission_duration_days()} days "
+              f"and earned {random.randint(25,75)} Exp.")
         self.return_to_stable()
+
+    def end_of_day_report(creatures: list):
+        for creature in creatures:
+            print(f"--- {creature.name} ---")
+            print(creature.describe_abilities())
+            print(
+                f"Mission duration if sent: {creature.mission_duration_days()} days")
+            print(creature)
 
     """
     ==Class Methods==

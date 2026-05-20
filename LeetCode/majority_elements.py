@@ -1,5 +1,5 @@
 list1 = [3,2,3]
-list2 = [2,2,1,1,1,1,1,2,2]
+list2 = [2,2,1,2,1,1,2,2,1,1]
 
 def majority_elements(nums: list) -> int:
     n = maj = 0

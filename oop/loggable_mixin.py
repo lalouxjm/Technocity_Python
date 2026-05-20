@@ -1,5 +1,3 @@
-import kwargs
-
 class LoggableMixin:
 
     def __init__(self, **kwargs):
@@ -7,8 +5,8 @@ class LoggableMixin:
         super().__init__(**kwargs)
 
     def log_mission(self):
-        log = (f"[LOG]<{self.name}>(<{self.species}>) departed on a mission "
-               f"- duration: <{self.mission_duration_days()}> days.")
+        log = (f"[LOG]<{self.name}({self.species}) departed on a mission "
+               f"- duration: {self.mission_duration_days()} days.>")
         self.mission_log.append(log)
         print(log)
 

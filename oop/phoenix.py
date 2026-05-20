@@ -1,11 +1,14 @@
+from oop import fly_mixin
 from oop.creature import Creature
+from oop.fly_mixin import FlyMixin
 
-class Phoenix(Creature):
+
+class Phoenix(FlyMixin, Creature):
 
     _total_phoenixes : int = 0
 
     def __init__(self, name , species, origin, power_level):
-        super().__init__(name, species, origin, power_level)
+        super().__init__(name=name,species= species, origin=origin, power_level=power_level)
 
         self.__resurrection_count = 0
 

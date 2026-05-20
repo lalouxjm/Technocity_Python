@@ -1,29 +1,28 @@
 from oop.dragon import Dragon
 from oop.loggable_mixin import LoggableMixin
+import my_func as mf
 
 
-class LegendaryDragon(Dragon, LoggableMixin):
+class LegendaryDragon(LoggableMixin, Dragon):
     def __init__(self, name: str, species, origin, power_level, element, title: str):
-        super().__init__(name, species, origin, power_level, element)
-
+        super().__init__(name=name,species= species, origin=origin, power_level=power_level, element=element)
+        #super().__init__(name,species,origin,power_level,element)
 
         self._title = None
         self.title = title
 
         self._mission_log = []
 
-
     def __str__(self):
-        base = super().__str__()
-        return f'{self.title}, {base}'
+        status = mf.green("In Stable") if self._in_stable else mf.red("On Mission")
+        return f"{mf.blue(self._name, ", ", self.title)} - LvL {self._power_level} {mf.yellow("<[",self.element,"]", self._species, ">")} (origin: {self._origin!r}) [{status}]"
 
     @property
     def title(self):
         return self._title
     @title.setter
     def title(self, value):
-        is_a_string = isinstance(value, str)
-        if not is_a_string:
+        if not isinstance(value, str):
             raise TypeError('Title must be a string')
         else:
             self._title = value
