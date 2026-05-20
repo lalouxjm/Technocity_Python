@@ -13,6 +13,14 @@ def green(value: str, value2="", value3="", value4="", value5="") -> str:
 #Turn the string blue
 def blue(value: str, value2="", value3="", value4="", value5="") -> str:
     return f"\033[1;34m{value}{value2}{value3}{value4}{value5}\033[0m"
+#Turn the string purple
+def purple(value: str, value2="", value3="", value4="", value5="") -> str:
+    return f"\033[1;35m{value}{value2}{value3}{value4}{value5}\033[0m"
+#Separator
+def sep():
+    print(purple("+" * 30), purple("=" * 50), purple("+" * 30),
+          sep='')
+
 # x*2
 def double(value: int) -> int:
     return value * 2

@@ -9,7 +9,7 @@ class Creature(ABC):
     class that represents a creature
     """
     _total_creatures = 0
-    __VALID_SPECIES = ["Dragon", "Ice Dragon", "Phoenix", "Griffin", "Unicorn", "Basilisk"]
+    __VALID_SPECIES = ["Dragon", "Legendary Dragon", "Phoenix", "Griffin", "Unicorn", "Basilisk"]
 
     """
     ==Constructor==
@@ -114,14 +114,14 @@ class Creature(ABC):
         self._in_stable = True
 
     def send_to_field(self) -> None:
-        print(self.describe_abilities())
-        self.send_on_mission()
-        print(f"{self.name} will be gone on mission for {self.mission_duration_days()} days.")
         print(self)
+        print(self.describe_abilities())
+        print(f"{self.name} will be gone on mission for {self.mission_duration_days()} days.")
+        self.send_on_mission()
 
     def return_from_mission(self) -> None:
-        self.return_to_stable()
         print(f"{self.name} came back from his mission after {self.mission_duration_days()} days and earned {random.randint(25,75)} Exp.")
+        self.return_to_stable()
 
     """
     ==Class Methods==
