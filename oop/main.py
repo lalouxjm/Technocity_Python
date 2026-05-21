@@ -1,8 +1,11 @@
+from datetime import date
+
 import my_func as f
 from oop.creature import Creature
 from oop.dragon import Dragon
 from oop.basilisk import Basilisk
 from oop.griffin import Griffin
+from oop.mission_records import MissionRecord
 from oop.phoenix import Phoenix
 from oop.robotic_guard import RoboticGuard
 from oop.stable import Stable
@@ -70,5 +73,9 @@ for creature in stable:
 print(stable)
 print(stable.find("Ignis"))
 f.sep()
-
-
+r1 = MissionRecord("Glacius", "Frozen Peaks", date(2025, 1, 10), 14)
+r2 = MissionRecord("Glacius", "Northern Pass", date(2025, 1, 10), 7)
+r3 = MissionRecord("Ignis", "Ashlands", date(2025, 1, 10), 7)
+f.sep()
+print(r1 == r2)         # True
+print(hash(r1) == hash(r2))  # True
