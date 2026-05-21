@@ -29,8 +29,8 @@ class Phoenix(FlyMixin, Creature):
     def mission_duration_days(self) -> int:
         return 7
 
-    def describe_abilities(self) -> None:
-        print(f"{self.name} has a flame aura and has the ability to fly. "
+    def describe_abilities(self) -> str:
+        return (f"{self.name} has a flame aura and has the ability to fly. "
                 f"{self.name} can also resurrect upon death.")
 
     def death(self) -> None:

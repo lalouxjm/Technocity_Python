@@ -5,6 +5,7 @@ from oop.basilisk import Basilisk
 from oop.griffin import Griffin
 from oop.phoenix import Phoenix
 from oop.robotic_guard import RoboticGuard
+from oop.stable import Stable
 from oop.unicorn import Unicorn
 from oop.legendary_dragon import LegendaryDragon
 
@@ -17,6 +18,8 @@ c4 = Griffin.add_from_dict({'name':"Diamond", 'species':"Griffin", 'origin':"Bow
 c5 = Basilisk.add_from_string("RazorSting,Basilisk,Poison Marsh,32")
 
 c6 = LegendaryDragon(name="Ignis", species="Dragon", origin="Volcanic Depths", power_level=99, element="Fire", title="The Destroyer")
+
+stable = Stable()
 
 Creature.get_total_creatures()
 Dragon.get_total_creatures()
@@ -48,6 +51,24 @@ print(r1)
 f.sep()
 creature_list = [c1, c2, c3, c4, c5, c6, r1]
 Creature.end_of_day_report(creature_list)
+f.sep()
+stable.add(c1)
+stable.add(c2)
+stable.add(c3)
+stable.add(c4)
+stable.add(c5)
+stable.add(c6)
+stable.remove(c4.name)
+stable.remove("RazorSting")
+print(f"There are {len(stable)} creatures in the stable")
+print(stable)
+print(f"Is {c6.name} in the stable? ", c6.name in stable)#True
+print(f"Is {c4.name} in the stable? ","Diamond" in stable)#False
+print(stable["Glacius"])
+for creature in stable:
+    print(creature.describe_abilities())
+print(stable)
+print(stable.find("Ignis"))
 f.sep()
 
 
