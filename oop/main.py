@@ -1,10 +1,11 @@
 from datetime import date
-
 import my_func as f
 from oop.creature import Creature
 from oop.dragon import Dragon
 from oop.basilisk import Basilisk
 from oop.griffin import Griffin
+from oop.mission_notifier import MissionDispatcher, ScrollNotifier, MirrorNotifier, \
+    SilentNotifier
 from oop.mission_records import MissionRecord
 from oop.phoenix import Phoenix
 from oop.robotic_guard import RoboticGuard
@@ -92,3 +93,12 @@ try:
         scroll.write_departure(record2)  #never reached
 except ValueError as error:
     print(f"ValueError still propagated: {error}")
+f.sep()
+dispatcher = MissionDispatcher(ScrollNotifier())
+dispatcher.dispatch("Glacius", "Northern Peaks")
+
+dispatcher = MissionDispatcher(MirrorNotifier())
+dispatcher.dispatch("Ignis", "Volcanic Rift")
+
+dispatcher = MissionDispatcher(SilentNotifier())
+dispatcher.dispatch("Ignis", "Volcanic Rift")
