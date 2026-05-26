@@ -1,0 +1,8 @@
+DEPARTURE: MissionRecord(creature_name='Glacius', destination='Frozen Peaks', departure_date=datetime.date(2025, 1, 10), duration_days=14, notes='')
+DEPARTURE: MissionRecord(creature_name='Glacius', destination='Northern Pass', departure_date=datetime.date(2025, 1, 10), duration_days=7, notes='')
+RETURN: Glacius
+DEPARTURE: MissionRecord(creature_name='Glacius', destination='Frozen Peaks', departure_date=datetime.date(2025, 1, 10), duration_days=14, notes='')
+DEPARTURE: MissionRecord(creature_name='Glacius', destination='Frozen Peaks', departure_date=datetime.date(2025, 1, 10), duration_days=14, notes='')
+DEPARTURE: MissionRecord(creature_name='Glacius', destination='Northern Pass', departure_date=datetime.date(2025, 1, 10), duration_days=7, notes='')
+RETURN: Glacius
+DEPARTURE: MissionRecord(creature_name='Glacius', destination='Frozen Peaks', departure_date=datetime.date(2025, 1, 10), duration_days=14, notes='')

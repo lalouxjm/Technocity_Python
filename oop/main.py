@@ -8,6 +8,7 @@ from oop.griffin import Griffin
 from oop.mission_records import MissionRecord
 from oop.phoenix import Phoenix
 from oop.robotic_guard import RoboticGuard
+from oop.scroll_archive import ScrollArchive
 from oop.stable import Stable
 from oop.unicorn import Unicorn
 from oop.legendary_dragon import LegendaryDragon
@@ -76,6 +77,18 @@ f.sep()
 r1 = MissionRecord("Glacius", "Frozen Peaks", date(2025, 1, 10), 14)
 r2 = MissionRecord("Glacius", "Northern Pass", date(2025, 1, 10), 7)
 r3 = MissionRecord("Ignis", "Ashlands", date(2025, 1, 10), 7)
-f.sep()
 print(r1 == r2)         # True
 print(hash(r1) == hash(r2))  # True
+f.sep()
+with ScrollArchive("stable_log.txt") as scroll:
+    scroll.write_departure(r1)
+    scroll.write_departure(r2)
+    scroll.write_return("Glacius")
+f.sep()
+try:
+    with ScrollArchive("stable_log.txt") as scroll:
+        scroll.write_departure(r1)
+        raise ValueError("Simulated crash mid-mission!")
+        scroll.write_departure(record2)  #never reached
+except ValueError as error:
+    print(f"ValueError still propagated: {error}")
