@@ -21,8 +21,7 @@ def purple(value: str, value2="", value3="", value4="", value5="") -> str:
     return f"\033[1;35m{value}{value2}{value3}{value4}{value5}\033[0m"
 #Separator
 def sep():
-    print(purple("+" * 30), purple("=" * 50), purple("+" * 30),
-          sep='')
+    print(purple("+" * 40, "=" * 50, "+" * 40),sep='')
 
 # x*2
 def double(value: int) -> int:
