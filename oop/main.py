@@ -16,13 +16,13 @@ from oop.legendary_dragon import LegendaryDragon
 
 
 
-c1 = Dragon(name="Glacius", species="Dragon", origin="Nordic Mountains", power_level=95, element="Ice")
-c2 = Unicorn(name="Rainbow", species="Unicorn", origin="Mist Forest", power_level=51)
-c3 = Phoenix(name="Marco", species="Phoenix", origin="Wild Plains", power_level=6)
-c4 = Griffin.add_from_dict({'name':"Diamond", 'species':"Griffin", 'origin':"Bowieland", 'power_level': 10})
-c5 = Basilisk.add_from_string("RazorSting,Basilisk,Poison Marsh,32")
+c1 = Dragon(name="Glacius", origin="Nordic Mountains", power_level=95, element="Ice")
+c2 = Unicorn(name="Rainbow", origin="Mist Forest", power_level=51)
+c3 = Phoenix(name="Marco", origin="Wild Plains", power_level=6)
+c4 = Griffin.add_from_dict({'name':"Diamond", 'origin':"Bowieland", 'power_level': 10})
+c5 = Basilisk.add_from_string("RazorSting,Poison Marsh,32")
 
-c6 = LegendaryDragon(name="Ignis", species="Dragon", origin="Volcanic Depths", power_level=99, element="Fire", title="The Destroyer")
+c6 = LegendaryDragon(name="Ignis", origin="Volcanic Depths", power_level=99, element="Fire", title="The Destroyer")
 
 stable = Stable()
 

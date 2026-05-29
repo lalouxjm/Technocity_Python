@@ -4,9 +4,8 @@ import my_func as mf
 
 
 class LegendaryDragon(LoggableMixin, Dragon):
-    def __init__(self, name: str, species, origin, power_level, element, title: str):
-        super().__init__(name=name,species= species, origin=origin, power_level=power_level, element=element)
-        #super().__init__(name,species,origin,power_level,element)
+    def __init__(self, name: str, origin, power_level, element, title: str):
+        super().__init__(name=name, origin=origin, power_level=power_level, element=element)
 
         self._title = None
         self.title = title

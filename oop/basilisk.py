@@ -1,8 +1,8 @@
 from oop.creature import Creature
 
 class Basilisk(Creature):
-    def __init__(self, name, species, origin, power_level):
-        super().__init__(name, species, origin, power_level)
+    def __init__(self, name, origin, power_level):
+        super().__init__(name=name, species="Basilisk", origin=origin, power_level=power_level)
 
     def __str__(self):
         base = super().__str__()

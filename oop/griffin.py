@@ -3,8 +3,8 @@ from oop.fly_mixin import FlyMixin
 
 
 class Griffin(FlyMixin, Creature):
-    def __init__(self, name, species, origin, power_level):
-        super().__init__(name=name,species= species, origin=origin, power_level=power_level)
+    def __init__(self, name, origin, power_level):
+        super().__init__(name=name,species="Griffin", origin=origin, power_level=power_level)
 
     def __str__(self):
         base = super().__str__()

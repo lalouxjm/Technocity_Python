@@ -8,7 +8,7 @@ class Creature(ABC):
     class that represents a creature
     """
     _total_creatures = 0
-    __VALID_SPECIES = ["Dragon", "Phoenix", "Griffin", "Unicorn", "Basilisk"]
+    __VALID_SPECIES = ["Dragon", "Legendary Dragon", "Phoenix", "Griffin", "Unicorn", "Basilisk"]
 
     """
     ==Constructor==
@@ -132,7 +132,6 @@ class Creature(ABC):
     def add_from_dict(cls, data: dict):
         return cls(
             data["name"],
-            data["species"],
             data["origin"],
             data["power_level"]
         )
@@ -140,10 +139,9 @@ class Creature(ABC):
     @classmethod
     def add_from_string(cls, creature_string: str):
 
-        name, species, origin, power_level = creature_string.split(",")
+        name, origin, power_level = creature_string.split(",")
         return cls(
             name,
-            species,
             origin,
             int(power_level)
         )

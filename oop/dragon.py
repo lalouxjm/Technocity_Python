@@ -7,8 +7,8 @@ class Dragon(FlyMixin, Creature):
 
     _total_dragons = 0
 
-    def __init__(self, name , species, origin, power_level, element: str):
-        super().__init__(name=name,species= species, origin=origin, power_level=power_level)
+    def __init__(self, name , origin, power_level, element: str):
+        super().__init__(name=name,species="Dragon", origin=origin, power_level=power_level)
 
         self._element = None
         self.element = element

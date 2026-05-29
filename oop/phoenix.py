@@ -7,8 +7,8 @@ class Phoenix(FlyMixin, Creature):
 
     _total_phoenixes : int = 0
 
-    def __init__(self, name , species, origin, power_level):
-        super().__init__(name=name,species= species, origin=origin, power_level=power_level)
+    def __init__(self, name, origin, power_level):
+        super().__init__(name=name,species="Phoenix", origin=origin, power_level=power_level)
 
         self.__resurrection_count = 0
 
