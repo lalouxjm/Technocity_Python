@@ -168,6 +168,13 @@ def run_write(sql: str) -> list[dict] | None:
             except Exception:
                 return None
 
+def reset_database():
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(SETUP_SQL)
+            conn.commit()
+
+    print("Database reset complete.")
 
 def check(label: str, result, assertion_fn, hint: str = ""):
     try:
@@ -266,10 +273,10 @@ ORDER BY species_id ASC, name ASC
 # — meaning their mission is still ongoing.
 #
 # HINT: for this exercise, query the missions table directly.
-# Return: creature_id, objective, started_at
+# Return: creature_id, objective, started_at, ended_at
 # ─────────────────────────────────────────────────────────────────────────────
 Q5 = """
-    SELECT creature_id, objective, started_at
+    SELECT creature_id, objective, started_at, ended_at 
     FROM missions as m
     JOIN creatures as c ON m.creature_id = c.id
     WHERE c.in_stable = FALSE and m.ended_at IS NULL
@@ -372,7 +379,9 @@ ORDER BY creature_id ASC
 # Order by: power_int DESC
 # ─────────────────────────────────────────────────────────────────────────────
 Q11 = """
--- Write your query here
+SELECT name, CAST(power_level AS INTEGER) AS "power_int"
+FROM CREATURES
+ORDER BY power_int DESC
 
 
 """
@@ -387,7 +396,11 @@ Q11 = """
 # Order by: id ASC   ← always sort before paginating
 # ─────────────────────────────────────────────────────────────────────────────
 Q12 = """
--- Write your query here
+SELECT id, name, power_level
+FROM creatures
+ORDER BY id ASC
+LIMIT 3
+OFFSET 3
 
 
 """
@@ -403,7 +416,13 @@ Q12 = """
 # Use RETURNING to get back the generated id and hired_at.
 # ─────────────────────────────────────────────────────────────────────────────
 Q13 = """
--- Write your query here
+INSERT INTO keepers (full_name, email)
+VALUES ('Elowen Drakemoor', 'elowen@stable.com')
+ON CONFLICT (email)
+DO UPDATE SET
+    email = keepers.email
+RETURNING id, hired_at
+
 
 
 """
@@ -422,7 +441,10 @@ Q13 = """
 #       The seed data is designed so no creature goes over 100 here.
 # ─────────────────────────────────────────────────────────────────────────────
 Q14 = """
--- Write your query here
+UPDATE creatures
+SET power_level = power_level + 2
+WHERE origin = 'Nordic Realms'
+RETURNING id, name, power_level
 
 
 """
@@ -438,7 +460,9 @@ Q14 = """
 # Use RETURNING to confirm which rows were deleted (id, creature_id, checked_at).
 # ─────────────────────────────────────────────────────────────────────────────
 Q15 = """
--- Write your query here
+DELETE FROM health_checks
+WHERE checked_at < NOW() - INTERVAL '15 days'
+RETURNING id, creature_id, checked_at
 
 
 """
@@ -448,6 +472,9 @@ Q15 = """
 #  TEST RUNNER — updated tests below (fixes incorrect expectations)
 # ═════════════════════════════════════════════════════════════════════════════
 if __name__ == "__main__":
+
+    reset_database()
+
     print("\n" + "═" * 60)
     print("  STABLE SQL EXERCISES — Test Runner")
     print("═" * 60 + "\n")
