@@ -152,6 +152,12 @@ INSERT INTO health_checks (creature_id, keeper_id, checked_at, notes, power_reco
 def get_conn():
     return psycopg.connect(**DB_CONFIG)
 
+def reset_database():
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(SETUP_SQL)
+            conn.commit()
+            
 def run_query(sql: str) -> list[dict]:
     with get_conn() as conn:
         with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
@@ -167,14 +173,6 @@ def run_write(sql: str) -> list[dict] | None:
                 return cur.fetchall()
             except Exception:
                 return None
-
-def reset_database():
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(SETUP_SQL)
-            conn.commit()
-
-    print("Database reset complete.")
 
 def check(label: str, result, assertion_fn, hint: str = ""):
     try:
@@ -280,7 +278,6 @@ Q5 = """
     FROM missions as m
     JOIN creatures as c ON m.creature_id = c.id
     WHERE c.in_stable = FALSE and m.ended_at IS NULL
-    
 
 
 """
