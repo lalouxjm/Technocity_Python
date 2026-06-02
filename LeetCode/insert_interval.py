@@ -5,8 +5,8 @@ newInterval2 = [4,9]
 
 
 def insert(intervals, newInterval):
-    result = []
     """
+    result = []
     for interval in intervals:
 
         # CASE 1
@@ -29,6 +29,7 @@ def insert(intervals, newInterval):
 
     return result
     """
+
 
 print(insert(intervals1, newInterval1))
 print(insert(intervals2, newInterval2))
