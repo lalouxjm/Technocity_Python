@@ -3,6 +3,7 @@ test2 = "LVIII"
 test3 = "MCMXCIV"
 
 def roman_to_int(s):
+    """
     roman = {
         'I': 1,
         'V': 5,
@@ -21,6 +22,8 @@ def roman_to_int(s):
             result += roman[s[i]]
 
     return result
+    """
+
 
 print(roman_to_int(test1))
 print(roman_to_int(test2))

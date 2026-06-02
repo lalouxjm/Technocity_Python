@@ -3,6 +3,7 @@ list2 = [0,0,1,1,1,2,2,3,3,4]
 list3 = [1,1,2,3,3]
 
 def remove_duplicates(nums: list[int]) -> int:
+    """
     k = 1
 
     for i in range(1, len(nums)):
@@ -11,6 +12,8 @@ def remove_duplicates(nums: list[int]) -> int:
             k += 1
 
     return k
+    """
+
 
 print(remove_duplicates(list1))
 print(remove_duplicates(list2))

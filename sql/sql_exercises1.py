@@ -53,6 +53,7 @@ SETUP_SQL = """
 -- It creates the schema and inserts seed data so the exercises work.
 
 DROP TABLE IF EXISTS health_checks, creature_missions, missions, creatures, keepers, species CASCADE;
+DROP TABLE IF EXISTS creature_ratings CASCADE;
 
 CREATE TABLE species (
     id           SERIAL PRIMARY KEY,

@@ -400,7 +400,8 @@ ORDER BY mission_count DESC
 # Order by: power_level DESC
 # ─────────────────────────────────────────────────────────────────────────────
 Q7 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -414,7 +415,8 @@ Q7 = """
 # Order by: name ASC
 # ─────────────────────────────────────────────────────────────────────────────
 Q8 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -438,7 +440,8 @@ Q8 = """
 # Order by: supervisor_name NULLS FIRST, keeper_name ASC
 # ─────────────────────────────────────────────────────────────────────────────
 Q9 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -488,7 +491,8 @@ Q9 = """
 # Order by: creature_count DESC, species ASC
 # ─────────────────────────────────────────────────────────────────────────────
 Q10 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -502,7 +506,8 @@ Q10 = """
 # Order by: avg_power DESC
 # ─────────────────────────────────────────────────────────────────────────────
 Q11 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -516,7 +521,8 @@ Q11 = """
 # Order by: creature_count DESC
 # ─────────────────────────────────────────────────────────────────────────────
 Q12 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -536,7 +542,8 @@ Q12 = """
 # 💡 Hint: COUNT(col) ignores NULLs. COUNT(CASE WHEN ... END) counts conditionally.
 # ─────────────────────────────────────────────────────────────────────────────
 Q13 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -552,7 +559,8 @@ Q13 = """
 # Order by: avg_power DESC
 # ─────────────────────────────────────────────────────────────────────────────
 Q14 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -569,7 +577,8 @@ Q14 = """
 # Order by: check_count DESC, name ASC
 # ─────────────────────────────────────────────────────────────────────────────
 Q15 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -598,7 +607,8 @@ Q15 = """
 # Order by: avg_score DESC
 # ─────────────────────────────────────────────────────────────────────────────
 Q16 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -616,7 +626,8 @@ Q16 = """
 #          CASE WHEN success THEN 1 ELSE 0 END works too.
 # ─────────────────────────────────────────────────────────────────────────────
 Q17 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -635,7 +646,8 @@ Q17 = """
 #    or solve it with a carefully ordered GROUP BY first.
 # ─────────────────────────────────────────────────────────────────────────────
 Q18 = """
--- Write your query here
+SELECT name
+FROM creatures as c
 
 
 """
@@ -691,7 +703,8 @@ Q19 = """
 --
 --
 -- b) Write the fixed query below:
-
+SELECT name
+FROM creatures as c
 
 """
 
@@ -713,7 +726,8 @@ Q20 = """
 -- Write the safe anti-join query here.
 -- Add a comment explaining the NOT IN NULL risk.
 
-
+SELECT name
+FROM creatures as c
 """
 
 

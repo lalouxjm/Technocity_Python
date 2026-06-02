@@ -5,6 +5,7 @@ val2 = 2
 
 
 def remove_element(nums: list, val: int) -> int:
+    """
     k = 0
 
     for i in range(len(nums)):
@@ -13,6 +14,8 @@ def remove_element(nums: list, val: int) -> int:
             k += 1
 
     return k
+    """
+
 
 print(remove_element(nums1, val1))
 print(remove_element(nums2, val2))
