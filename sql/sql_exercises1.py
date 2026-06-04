@@ -144,6 +144,9 @@ INSERT INTO health_checks (creature_id, keeper_id, checked_at, notes, power_reco
     (3, 1, NOW() - INTERVAL '10 days', 'Feathers regenerating well',         70),
     (5, 3, NOW() - INTERVAL '2 days',  NULL,                                 45),
     (7, 2, NOW() - INTERVAL '1 day',   'New arrival checkup',                55);
+
+DROP TABLE IF EXISTS creature_ratings CASCADE;
+DROP TABLE IF EXISTS mission_logs CASCADE;
 """
 
 

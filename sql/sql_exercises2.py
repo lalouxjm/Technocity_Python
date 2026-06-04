@@ -187,6 +187,7 @@ INSERT INTO creature_ratings (creature_id, keeper_id, score, rated_at) VALUES
     (7, 2, 8,  NOW() - INTERVAL '1 day');     -- Blazethorn    rated by Aldric
 -- Pearlhoof (5), Shadowcoil (6), Glacierfang (8),
 -- Dawnfeather (9), Nightscale (10) → no rating yet
+DROP TABLE IF EXISTS mission_logs CASCADE;
 """
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -400,8 +401,11 @@ ORDER BY mission_count DESC
 # Order by: power_level DESC
 # ─────────────────────────────────────────────────────────────────────────────
 Q7 = """
-SELECT name
+SELECT c.name, c.species_id, c.power_level
 FROM creatures as c
+LEFT JOIN missions as m On c.id = m.creature_id
+WHERE m.id IS NULL
+ORDER BY c.power_level DESC
 
 
 """
@@ -415,8 +419,11 @@ FROM creatures as c
 # Order by: name ASC
 # ─────────────────────────────────────────────────────────────────────────────
 Q8 = """
-SELECT name
+SELECT c.name, c.in_stable
 FROM creatures as c
+LEFT JOIN creature_ratings as cr ON cr.creature_id = c.id
+WHERE cr.id IS NULL
+ORDER BY c.name ASC
 
 
 """
@@ -440,8 +447,10 @@ FROM creatures as c
 # Order by: supervisor_name NULLS FIRST, keeper_name ASC
 # ─────────────────────────────────────────────────────────────────────────────
 Q9 = """
-SELECT name
-FROM creatures as c
+SELECT k.full_name as keeper_name, sk.full_name as supervisor_name
+FROM keepers as k
+LEFT JOIN keepers as sk on k.supervisor_id = sk.id
+ORDER BY supervisor_name NULLS FIRST, keeper_name ASC
 
 
 """
@@ -491,8 +500,11 @@ FROM creatures as c
 # Order by: creature_count DESC, species ASC
 # ─────────────────────────────────────────────────────────────────────────────
 Q10 = """
-SELECT name
-FROM creatures as c
+SELECT s.name as species, COUNT(c.id) as creature_count
+FROM species as s
+JOIN creatures as c ON c.species_id = s.id
+GROUP BY s.name
+ORDER BY creature_count DESC, species ASC
 
 
 """
@@ -506,9 +518,11 @@ FROM creatures as c
 # Order by: avg_power DESC
 # ─────────────────────────────────────────────────────────────────────────────
 Q11 = """
-SELECT name
-FROM creatures as c
-
+SELECT s.name, ROUND(AVG(c.power_level),2) as avg_power
+FROM species as s
+JOIN creatures as c ON c.species_id = s.id
+GROUP BY s.name
+ORDER BY avg_power DESC
 
 """
 
@@ -521,8 +535,12 @@ FROM creatures as c
 # Order by: creature_count DESC
 # ─────────────────────────────────────────────────────────────────────────────
 Q12 = """
-SELECT name
-FROM creatures as c
+SELECT s.name, COUNT(c.id) as creature_count
+FROM species as s
+JOIN creatures as c ON c.species_id = s.id
+GROUP BY s.name
+HAVING COUNT(c.id) > 1
+ORDER BY creature_count DESC
 
 
 """
@@ -542,8 +560,14 @@ FROM creatures as c
 # 💡 Hint: COUNT(col) ignores NULLs. COUNT(CASE WHEN ... END) counts conditionally.
 # ─────────────────────────────────────────────────────────────────────────────
 Q13 = """
-SELECT name
-FROM creatures as c
+SELECT k.full_name, 
+       CASE WHEN k.id = m.keeper_id THEN COUNT(m.id) END  AS total_missions, 
+       CASE WHEN k.id = m.keeper_id AND m.success = TRUE THEN COUNT(m.id) END AS successful_missions, 
+       CASE WHEN k.id = m.keeper_id AND m.success = FALSE THEN COUNT(m.id) END AS failed_missions
+FROM keepers as k
+JOIN missions as m ON k.id = m.keeper_id
+GROUP BY k.full_name, k.id, m.keeper_id, m.success
+ORDER BY total_missions DESC
 
 
 """
@@ -559,8 +583,12 @@ FROM creatures as c
 # Order by: avg_power DESC
 # ─────────────────────────────────────────────────────────────────────────────
 Q14 = """
-SELECT name
-FROM creatures as c
+SELECT s.name, ROUND(AVG(c.power_level),2) as avg_power, COUNT(c.id) as creature_count
+FROM species as s
+LEFT JOIN creatures as c ON c.species_id = s.id
+GROUP BY s.name
+HAVING ROUND(AVG(c.power_level),2) > 60
+ORDER BY avg_power DESC
 
 
 """
@@ -577,9 +605,12 @@ FROM creatures as c
 # Order by: check_count DESC, name ASC
 # ─────────────────────────────────────────────────────────────────────────────
 Q15 = """
-SELECT name
+SELECT c.name, MIN(hc.power_recorded) AS min_power, MAX(hc.power_recorded) AS max_power, COUNT(hc.id) AS check_count 
 FROM creatures as c
-
+JOIN health_checks as hc On c.id = hc.creature_id
+GROUP BY c.name
+HAVING COUNT(hc.id) >= 1
+ORDER BY check_count DESC, c.name ASC
 
 """
 
@@ -607,10 +638,13 @@ FROM creatures as c
 # Order by: avg_score DESC
 # ─────────────────────────────────────────────────────────────────────────────
 Q16 = """
-SELECT name
+SELECT c.name, ROUND(AVG(cr.score),2) as avg_score, COUNT(cr.id) AS rating_count
 FROM creatures as c
-
-
+JOIN creature_ratings as cr ON cr.creature_id = c.id
+GROUP BY c.name
+HAVING COUNT(cr.id) >= 2
+ORDER BY avg_score DESC
+LIMIT 3
 """
 
 
@@ -626,9 +660,14 @@ FROM creatures as c
 #          CASE WHEN success THEN 1 ELSE 0 END works too.
 # ─────────────────────────────────────────────────────────────────────────────
 Q17 = """
-SELECT name
-FROM creatures as c
-
+SELECT k.full_name, 
+       COUNT(m.ended_at) AS completed_missions, 
+       ROUND(100.0 * COUNT(CAST(m.success AS INTEGER)) / COUNT(*), 1) AS success_rate
+from keepers as k
+JOIN missions as m ON k.id = m.keeper_id
+WHERE ended_at IS NOT NULL
+GROUP BY k.full_name
+ORDER BY success_rate DESC
 
 """
 
@@ -646,9 +685,13 @@ FROM creatures as c
 #    or solve it with a carefully ordered GROUP BY first.
 # ─────────────────────────────────────────────────────────────────────────────
 Q18 = """
-SELECT name
-FROM creatures as c
-
+SELECT s.name AS species, k.full_name, COUNT(hc.keeper_id) AS check_count
+FROM species as s
+JOIN creatures as c ON c.species_id = s.id
+JOIN health_checks as hc ON hc.creature_id = c.id
+JOIN keepers as k ON k.id = hc.keeper_id
+GROUP BY s.name, k.full_name
+ORDER BY check_count DESC, species ASC
 
 """
 
@@ -703,8 +746,12 @@ Q19 = """
 --
 --
 -- b) Write the fixed query below:
-SELECT name
-FROM creatures as c
+SELECT c.name, r.score
+FROM creatures c
+LEFT JOIN creature_ratings r ON r.creature_id = c.id
+AND r.score >= 8
+ORDER BY r.score DESC NULLS LAST, c.name ASC
+
 
 """
 
@@ -726,8 +773,11 @@ Q20 = """
 -- Write the safe anti-join query here.
 -- Add a comment explaining the NOT IN NULL risk.
 
-SELECT name
+SELECT c.name, c.origin, c.power_level
 FROM creatures as c
+LEFT JOIN creature_ratings as cr ON cr.creature_id = c.id 
+WHERE cr.id IS NULL
+ORDER BY power_level DESC
 """
 
 
