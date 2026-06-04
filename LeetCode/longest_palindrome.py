@@ -12,8 +12,7 @@ def longest_palindrome(s):
         if count % 2 == 1:
             odds = True
 
-        if count % 2 == 0:
-            longest += count
+        longest += (c//2)*2
 
     if odds:
         longest += 1
