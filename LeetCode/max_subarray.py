@@ -7,12 +7,20 @@ def max_sub_array(nums: list) -> int:
     max_result = 0
     for i in range(len(nums)):
         result += nums[i]
-        if result < 0:
+        if result < 0: # ---xxxxxxxxxxxx---
             result = 0
         if result > max_result:
             max_result = result
 
     return max_result
+    """
+    """
+    largest = nums[0]
+    current = nums[0]
+    for i in range(1, len(nums)):
+        current = max(nums[i], current + nums[i])
+        largest = max(largest, current)
+    return largest
     """
 
 

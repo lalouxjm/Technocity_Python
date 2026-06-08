@@ -22,3 +22,20 @@ def longest_palindrome(s):
 
 
 print(longest_palindrome(s))
+
+a = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
+
+print(a.values())
+print(a.keys())
+print("".join(map(str,a.values())))
+print("".join(a.keys()))
+pref_bel = "+32"
+p_number = "0493636120"
+p_number_formatted = " ".join([
+    pref_bel,
+    p_number[1:4],
+    p_number[4:6],
+    p_number[6:8],
+    p_number[8:],
+])
+print(p_number_formatted)
