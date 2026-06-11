@@ -2,7 +2,7 @@ s1 = "abcabcbb"
 s2 = "bbbbb"
 s3 = "pwwkew"
 
-
+"""
 def lengthOfLongestSubstring(s: str) -> int:
     seen = set()
     left = 0
@@ -16,6 +16,8 @@ def lengthOfLongestSubstring(s: str) -> int:
         longest = max(longest, right - left + 1)
 
     return longest
+"""
+
 
 print(lengthOfLongestSubstring(s1))
 print(lengthOfLongestSubstring(s2))
